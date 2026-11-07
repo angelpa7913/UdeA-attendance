@@ -1,0 +1,45 @@
+# Propósito: configuración por defecto (producción). Todo lo específico de una institución vive aquí.
+# Para otra institución o proveedor de login solo se cambian estos valores, nunca el código (Abierto/Cerrado).
+# Se enlaza con AttendanceProperties (prefijo "attendance").
+
+spring:
+  application:
+    name: attendance
+
+  # SECURITY: credenciales solo por variables de entorno (.env.example)
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USER}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: validate        # el esquema lo maneja Flyway, nunca Hibernate
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+  security:
+    oauth2:
+      client:
+        registration:
+          # "oidc" es un id neutral: el proveedor real lo define OIDC_ISSUER_URI
+          oidc:
+            client-id: ${OIDC_CLIENT_ID}
+            client-secret: ${OIDC_CLIENT_SECRET}   # SECURITY
+            scope: openid, profile, email
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+        provider:
+          oidc:
+            issuer-uri: ${OIDC_ISSUER_URI}
+
+attendance:
+  institution-name: "Universidad de Antioquia"
+  allowed-email-domains:
+    - udea.edu.co
+  qr:
+    window-seconds: 20          # cada cuánto cambia el QR
+    tolerance-windows: 1        # ventanas anteriores aceptadas (latencia al escanear)

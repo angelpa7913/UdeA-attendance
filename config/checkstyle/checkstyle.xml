@@ -1,0 +1,79 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+        "-//Checkstyle//DTD Checkstyle Configuration 1.3//EN"
+        "https://checkstyle.org/dtds/configuration_1_3.dtd">
+<!--
+  Propósito: convierte las "buenas prácticas obligatorias" del proyecto en reglas que rompen el build.
+  Cada regla indica a qué práctica corresponde.
+-->
+<module name="Checker">
+    <property name="charset" value="UTF-8"/>
+    <property name="severity" value="error"/>
+
+    <module name="TreeWalker">
+        <!-- Nada de números mágicos: van en AttendanceProperties o en constantes con nombre -->
+        <module name="MagicNumber">
+            <property name="ignoreHashCodeMethod" value="true"/>
+            <property name="ignoreAnnotation" value="true"/>
+            <property name="ignoreFieldDeclaration" value="false"/>
+        </module>
+
+        <!-- Métodos cortos (≈20 líneas; margen para firma y llaves) -->
+        <module name="MethodLength">
+            <property name="max" value="25"/>
+            <property name="countEmpty" value="false"/>
+        </module>
+
+        <!-- Sin if anidados profundos: usa retornos tempranos -->
+        <module name="NestedIfDepth">
+            <property name="max" value="1"/>
+        </module>
+
+        <!-- Imports explícitos, nunca con * -->
+        <module name="AvoidStarImport"/>
+        <module name="UnusedImports"/>
+
+        <!-- Prohibido tragarse excepciones o capturar Exception genérica -->
+        <module name="EmptyCatchBlock"/>
+        <module name="IllegalCatch">
+            <property name="illegalClassNames"
+                      value="Exception, Throwable, RuntimeException, java.lang.Exception, java.lang.Throwable, java.lang.RuntimeException"/>
+        </module>
+
+        <!-- Prohibido while (true) y for (;;) -->
+        <module name="RegexpSinglelineJava">
+            <property name="id" value="noInfiniteWhile"/>
+            <property name="format" value="while\s*\(\s*true\s*\)"/>
+            <property name="message" value="Prohibido while (true): usa una condición de salida clara."/>
+            <property name="ignoreComments" value="true"/>
+        </module>
+        <module name="RegexpSinglelineJava">
+            <property name="id" value="noInfiniteFor"/>
+            <property name="format" value="for\s*\(\s*;\s*;\s*\)"/>
+            <property name="message" value="Prohibido for (;;): usa una condición de salida clara."/>
+            <property name="ignoreComments" value="true"/>
+        </module>
+
+        <!-- La hora siempre viene de un Clock inyectado -->
+        <module name="RegexpSinglelineJava">
+            <property name="id" value="noNowWithoutClock"/>
+            <property name="format" value="\.now\(\s*\)"/>
+            <property name="message" value="Usa el Clock inyectado: X.now(clock), nunca X.now()."/>
+            <property name="ignoreComments" value="true"/>
+        </module>
+
+        <!-- Inyección solo por constructor -->
+        <module name="RegexpSinglelineJava">
+            <property name="id" value="noFieldAutowired"/>
+            <property name="format" value="@Autowired"/>
+            <property name="message" value="Nada de @Autowired: inyecta por constructor."/>
+            <property name="ignoreComments" value="true"/>
+        </module>
+
+        <!-- Atributos final cuando se pueda; nada de variables públicas mutables -->
+        <module name="VisibilityModifier">
+            <property name="protectedAllowed" value="false"/>
+        </module>
+        <module name="FinalLocalVariable"/>
+    </module>
+</module>

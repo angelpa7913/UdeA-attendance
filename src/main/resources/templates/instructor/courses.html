@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<!--
+Propósito: lista de cursos del instructor y formulario para importar inscritos.
+  Modelo esperado: courses (List<CourseSummary>), importSummary (opcional, flash attribute).
+  Pasos:
+    1. Tabla con code, group, name de cada curso.
+    2. Por cada curso: formulario POST /instructor/sessions con courseId oculto → "Iniciar sesión de asistencia".
+    3. Formulario multipart POST /instructor/courses/import con un input file (accept=".csv").
+    4. Si hay importSummary: mostrar importadas, omitidas y errores.
+  SECURITY: todos los formularios POST llevan el token CSRF (th:action lo agrega solo).
+  Depende de: CourseController, SessionController.
+-->
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${institutionName} + ' · Mis cursos'">Mis cursos</title>
+</head>
+<body>
+    <main>
+        <h1>Mis cursos</h1>
+        <!-- TODO: tabla de cursos con botón para iniciar sesión -->
+        <!-- TODO: formulario de importación CSV -->
+    </main>
+</body>
+</html>

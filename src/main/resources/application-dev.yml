@@ -1,0 +1,21 @@
+# Propósito: perfil de desarrollo (activar con --spring.profiles.active=dev).
+# Usa H2 en memoria para no necesitar PostgreSQL. Las mismas migraciones Flyway deben correr aquí:
+# esa es la prueba de que el SQL es estándar.
+# Datos de prueba: db/dev/R__dev_seed.sql (solo se carga en este perfil).
+
+spring:
+  flyway:
+    locations: classpath:db/migration,classpath:db/dev
+  datasource:
+    url: jdbc:h2:mem:attendance;DB_CLOSE_DELAY=-1
+    username: sa
+    password: ""
+  h2:
+    console:
+      enabled: true             # SECURITY: solo en dev, nunca en producción
+
+attendance:
+  institution-name: "Institución de desarrollo"
+  allowed-email-domains:
+    - example.com
+    - gmail.com

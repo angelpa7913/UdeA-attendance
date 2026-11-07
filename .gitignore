@@ -1,0 +1,8 @@
+target/
+.env
+*.log
+.idea/
+.vscode/
+*.iml
+CONTEXTO_CLAUDE_CODE.md
+AVANCE.md

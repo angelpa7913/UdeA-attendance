@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<!--
+Propósito: resumen de la sesión cerrada y botón para descargar el reporte.
+  Modelo esperado: sessionId, course, formats (ReportFormat.values()).
+  Pasos:
+    1. Mostrar curso y fecha de la sesión.
+    2. Por cada formato disponible: enlace a /instructor/sessions/{id}/report/download?format=X
+       (así al agregar PDF aparece solo, sin tocar la plantilla).
+  Depende de: ReportController.
+-->
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${institutionName} + ' · Reporte'">Reporte</title>
+</head>
+<body>
+    <main>
+        <h1>Reporte de asistencia</h1>
+        <!-- TODO: enlaces de descarga por formato -->
+    </main>
+</body>
+</html>

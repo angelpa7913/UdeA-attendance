@@ -1,0 +1,9 @@
+-- Propósito: datos de prueba para el perfil dev (H2). Migración repetible: Flyway la vuelve a
+-- ejecutar si cambia su contenido. Nunca se carga en producción (solo está en las locations de dev).
+--
+-- Pasos a implementar:
+--   1. Un curso: code 'DEMO-101', group_code '01', name 'Curso de prueba',
+--      instructor_email = tu correo de prueba (debe pertenecer a un dominio de application-dev.yml).
+--   2. Tres participantes con correos @example.com.
+--   3. Inscribirlos en el curso.
+--   4. Usar MERGE INTO o borrar antes de insertar para que sea repetible (MERGE es estándar SQL:2003).

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<!--
+Propósito: lo que ve el participante después de escanear.
+  Modelo esperado: messageKey o status (derivado del RegistrationResult con switch en el controlador).
+  Pasos:
+    1. Registered → "Asistencia registrada" con la hora.
+    2. InvalidToken → "QR inválido o vencido, escanea de nuevo".
+    3. SessionClosed → "La sesión ya fue cerrada".
+    4. NotEnrolled → "No estás inscrito en este curso".
+    5. AlreadyRegistered → "Ya habías registrado tu asistencia".
+    6. Diseño para móvil (es donde se abre).
+  SECURITY: no mostrar el token ni detalles técnicos del fallo.
+-->
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${institutionName} + ' · Registro'">Registro</title>
+</head>
+<body>
+    <main>
+        <!-- TODO: mensaje según el resultado -->
+    </main>
+</body>
+</html>

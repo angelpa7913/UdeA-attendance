@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<!--
+Propósito: página pública de inicio.
+  Modelo esperado: institutionName (desde AttendanceProperties; agrégalo con un @ControllerAdvice
+  en shared o en identity para no repetirlo en cada controlador).
+  Pasos:
+    1. Mostrar el nombre de la institución (nunca escrito a mano: viene de configuración).
+    2. Si no hay sesión: botón "Iniciar sesión" → /oauth2/authorization/oidc.
+    3. Si hay sesión y es INSTRUCTOR: enlace a /instructor/courses.
+    4. Si es PARTICIPANT: texto "Escanea el QR que proyecta tu instructor".
+  Depende de: thymeleaf-extras-springsecurity6 (sec:authorize) o un atributo currentUser en el modelo.
+-->
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${institutionName} + ' · Asistencia'">Asistencia</title>
+</head>
+<body>
+    <main>
+        <h1 th:text="${institutionName}">Institución</h1>
+        <!-- TODO: botón de login / enlaces según el rol -->
+    </main>
+</body>
+</html>

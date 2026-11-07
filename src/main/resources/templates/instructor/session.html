@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<!--
+Propósito: pantalla que el instructor proyecta: QR grande, cuenta regresiva y contador de asistentes.
+  Modelo esperado: sessionId, course (CourseSummary), windowSeconds.
+  Pasos:
+    1. <img id="qr"> apuntando a /instructor/sessions/{id}/qr.png.
+    2. Pasar datos al JS con atributos data-* (data-qr-url, data-count-url, data-window-seconds),
+       no con variables globales.
+    3. Elemento para la cuenta regresiva y otro para el contador.
+    4. Formulario POST /instructor/sessions/{id}/close → "Cerrar sesión".
+    5. Cargar /js/qr-rotator.js con th:src.
+  SECURITY: la página no contiene el secreto; solo la imagen del token ya firmado.
+  Depende de: SessionController, AttendanceController (contador), qr-rotator.js.
+-->
+<html lang="es" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${institutionName} + ' · Proyección'">Proyección</title>
+</head>
+<body>
+    <main id="projection">
+        <!-- TODO: img del QR, cuenta regresiva, contador y botón de cierre -->
+    </main>
+    <script th:src="@{/js/qr-rotator.js}" defer></script>
+</body>
+</html>
