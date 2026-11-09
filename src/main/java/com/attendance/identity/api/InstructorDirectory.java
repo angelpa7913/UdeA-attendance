@@ -29,4 +29,12 @@ package com.attendance.identity.api;
  * Está en api porque la implementa otro módulo (es una SPI).<br>
  */
 public interface InstructorDirectory {
+
+    /**
+     * Indica si el correo es instructor de algún curso. La implementación debe ser de solo lectura.
+     *
+     * @param email correo normalizado
+     * @return {@code true} si es instructor
+     */
+    boolean isInstructor(String email);
 }

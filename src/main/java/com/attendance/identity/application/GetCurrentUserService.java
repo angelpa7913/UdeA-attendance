@@ -1,5 +1,16 @@
 package com.attendance.identity.application;
 
+import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+
+import com.attendance.identity.api.CurrentUser;
+import com.attendance.identity.api.GetCurrentUserUseCase;
+import com.attendance.identity.api.InstructorDirectory;
+import com.attendance.identity.application.port.out.AuthenticatedUserProvider;
+import com.attendance.identity.application.port.out.AuthenticatedUserProvider.AuthenticatedUser;
+import com.attendance.identity.domain.Role;
+
 /**
  * <h2>Propósito</h2>
  * Implementa {@code GetCurrentUserUseCase}: arma el {@code CurrentUser} con su rol.
@@ -30,5 +41,25 @@ package com.attendance.identity.application;
  *   <li>{@code CurrentUser}, {@code Role}</li>
  * </ul>
  */
-public class GetCurrentUserService {
+@Service
+public class GetCurrentUserService implements GetCurrentUserUseCase {
+
+    private final AuthenticatedUserProvider authenticatedUserProvider;
+    private final InstructorDirectory instructorDirectory;
+
+    public GetCurrentUserService(AuthenticatedUserProvider authenticatedUserProvider,
+            InstructorDirectory instructorDirectory) {
+        this.authenticatedUserProvider = authenticatedUserProvider;
+        this.instructorDirectory = instructorDirectory;
+    }
+
+    @Override
+    public Optional<CurrentUser> currentUser() {
+        return authenticatedUserProvider.authenticatedUser().map(this::toCurrentUser);
+    }
+
+    private CurrentUser toCurrentUser(AuthenticatedUser user) {
+        final Role role = instructorDirectory.isInstructor(user.email()) ? Role.INSTRUCTOR : Role.PARTICIPANT;
+        return new CurrentUser(user.id(), user.email(), user.displayName(), role.name());
+    }
 }

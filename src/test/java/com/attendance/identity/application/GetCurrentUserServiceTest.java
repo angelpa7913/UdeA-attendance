@@ -1,7 +1,13 @@
 package com.attendance.identity.application;
 
-import org.junit.jupiter.api.Disabled;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.util.Optional;
+
 import org.junit.jupiter.api.Test;
+
+import com.attendance.identity.api.CurrentUser;
+import com.attendance.identity.application.port.out.AuthenticatedUserProvider.AuthenticatedUser;
 
 /**
  * <h2>Propósito</h2>
@@ -31,21 +37,27 @@ import org.junit.jupiter.api.Test;
  */
 class GetCurrentUserServiceTest {
 
+    private static final AuthenticatedUser USER =
+            new AuthenticatedUser("sub-1", "ana@example.com", "Ana Prueba");
+
     @Test
-    @Disabled("TODO")
     void returnsEmptyWhenNoAuthenticatedUser() {
-        // Sin usuario autenticado → Optional.empty().
+        final GetCurrentUserService service = new GetCurrentUserService(Optional::empty, email -> true);
+
+        assertThat(service.currentUser()).isEmpty();
     }
 
     @Test
-    @Disabled("TODO")
     void assignsInstructorRoleWhenDirectorySaysSo() {
-        // InstructorDirectory devuelve true → role INSTRUCTOR.
+        final GetCurrentUserService service = new GetCurrentUserService(() -> Optional.of(USER), email -> true);
+
+        assertThat(service.currentUser()).map(CurrentUser::role).contains("INSTRUCTOR");
     }
 
     @Test
-    @Disabled("TODO")
     void assignsParticipantRoleByDefault() {
-        // InstructorDirectory devuelve false → role PARTICIPANT.
+        final GetCurrentUserService service = new GetCurrentUserService(() -> Optional.of(USER), email -> false);
+
+        assertThat(service.currentUser()).map(CurrentUser::role).contains("PARTICIPANT");
     }
 }

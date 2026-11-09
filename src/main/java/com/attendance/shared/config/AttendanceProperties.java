@@ -1,5 +1,18 @@
 package com.attendance.shared.config;
 
+import java.util.List;
+import java.util.Locale;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.validation.annotation.Validated;
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
+
 /**
  * <h2>Propósito</h2>
  * Única fuente de los valores configurables del negocio (prefijo {@code attendance} en
@@ -37,5 +50,22 @@ package com.attendance.shared.config;
  * Los módulos lo reciben por constructor; el {@code domain} de un módulo NO debe recibirlo
  * (pásale solo los valores que necesita).
  */
-public record AttendanceProperties() {
+@ConfigurationProperties(prefix = "attendance")
+@Validated
+public record AttendanceProperties(
+        @NotBlank String institutionName,
+        @NotEmpty List<@NotBlank String> allowedEmailDomains,
+        @Valid @NotNull Qr qr) {
+
+    public AttendanceProperties {
+        // Si falta la lista se deja en null para que @NotEmpty dé un mensaje claro al arrancar.
+        if (allowedEmailDomains != null) {
+            allowedEmailDomains = allowedEmailDomains.stream()
+                    .map(domain -> domain == null ? "" : domain.strip().toLowerCase(Locale.ROOT))
+                    .toList();
+        }
+    }
+
+    public record Qr(@Positive int windowSeconds, @PositiveOrZero int toleranceWindows) {
+    }
 }

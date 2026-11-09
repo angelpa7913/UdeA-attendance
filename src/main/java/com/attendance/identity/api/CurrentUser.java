@@ -24,5 +24,14 @@ package com.attendance.identity.api;
  *   <li>Nada (o {@code Role} si decides moverlo a api).</li>
  * </ul>
  */
-public record CurrentUser() {
+public record CurrentUser(String id, String email, String displayName, String role) {
+
+    public CurrentUser {
+        if (id == null || id.isBlank()) {
+            throw new IllegalArgumentException("El id del usuario no puede estar en blanco");
+        }
+        if (email == null || email.isBlank()) {
+            throw new IllegalArgumentException("El correo del usuario no puede estar en blanco");
+        }
+    }
 }

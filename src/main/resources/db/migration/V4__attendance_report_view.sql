@@ -14,3 +14,19 @@
 --
 --   Variante (opcional): partir de enrollments con LEFT JOIN a attendance_records para listar
 --   también a los ausentes (registered_at NULL).
+
+CREATE VIEW attendance_report AS
+SELECT s.id AS session_id,
+       s.opened_at AS session_opened_at,
+       s.instructor_email,
+       c.code AS course_code,
+       c.group_code AS course_group,
+       c.name AS course_name,
+       p.email AS participant_email,
+       p.full_name AS participant_name,
+       p.external_id,
+       a.registered_at
+FROM attendance_records a
+JOIN sessions s ON s.id = a.session_id
+JOIN courses c ON c.id = s.course_id
+JOIN participants p ON p.id = a.participant_id;

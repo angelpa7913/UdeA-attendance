@@ -25,5 +25,11 @@ package com.attendance.shared.domain;
  * <h2>Depende de</h2>
  * Nada (solo {@code java.lang}).
  */
-public record DomainError() {
+public record DomainError(String code, String message) {
+
+    public DomainError {
+        if (code == null || code.isBlank()) {
+            throw new IllegalArgumentException("El código del error no puede ser nulo ni estar en blanco");
+        }
+    }
 }

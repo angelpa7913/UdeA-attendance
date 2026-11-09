@@ -1,5 +1,9 @@
 package com.attendance.enrollment.infrastructure.identity;
 
+import org.springframework.stereotype.Component;
+
+import com.attendance.identity.api.InstructorDirectory;
+
 /**
  * <h2>Propósito</h2>
  * Implementa {@code InstructorDirectory} (de identity): es instructor quien tenga al menos un curso a su nombre.
@@ -29,5 +33,12 @@ package com.attendance.enrollment.infrastructure.identity;
  * <h2>Notas</h2>
  * Archivo agregado respecto al CONTEXTO: resuelve el rol sin crear un ciclo identity ↔ enrollment.<br>
  */
-public class EnrollmentInstructorDirectory {
+@Component
+public class EnrollmentInstructorDirectory implements InstructorDirectory {
+
+    // TODO etapa 4d: temporal para que la app arranque; usar ListInstructorCoursesUseCase.
+    @Override
+    public boolean isInstructor(String email) {
+        return false;
+    }
 }

@@ -1,5 +1,7 @@
 package com.attendance.identity.api;
 
+import java.util.Optional;
+
 /**
  * <h2>Propósito</h2>
  * Puerto de entrada: obtener el usuario autenticado de la petición actual.
@@ -25,4 +27,6 @@ package com.attendance.identity.api;
  * </ul>
  */
 public interface GetCurrentUserUseCase {
+
+    Optional<CurrentUser> currentUser();
 }

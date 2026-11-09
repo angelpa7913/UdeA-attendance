@@ -1,5 +1,11 @@
 package com.attendance.identity.infrastructure.security;
 
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.web.SecurityFilterChain;
+
 /**
  * <h2>Propósito</h2>
  * Configura Spring Security: rutas públicas y protegidas, login OAuth2/OIDC y logout.
@@ -30,5 +36,29 @@ package com.attendance.identity.infrastructure.security;
  *   <li>{@code DomainRestrictedOidcUserService}</li>
  * </ul>
  */
+@Configuration(proxyBeanMethods = false)
+@EnableWebSecurity
 public class SecurityConfig {
+
+    private static final String[] PUBLIC_PATHS = {"/", "/css/**", "/js/**", "/error"};
+    private static final String LOGOUT_SUCCESS_URL = "/";
+    private static final String SESSION_COOKIE = "JSESSIONID";
+
+    // El oauth2Login por defecto vuelve a la URL original, así /attend?t=... continúa tras el login.
+    // SECURITY: CSRF queda activo (es el valor por defecto) para todos los formularios POST.
+    @Bean
+    SecurityFilterChain filterChain(HttpSecurity http, DomainRestrictedOidcUserService userService)
+            throws Exception {
+        return http
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(PUBLIC_PATHS).permitAll()
+                        .anyRequest().authenticated())
+                .oauth2Login(login -> login.userInfoEndpoint(info -> info.oidcUserService(userService)))
+                // SECURITY: cerrar sesión invalida la sesión HTTP y borra su cookie.
+                .logout(logout -> logout
+                        .logoutSuccessUrl(LOGOUT_SUCCESS_URL)
+                        .invalidateHttpSession(true)
+                        .deleteCookies(SESSION_COOKIE))
+                .build();
+    }
 }

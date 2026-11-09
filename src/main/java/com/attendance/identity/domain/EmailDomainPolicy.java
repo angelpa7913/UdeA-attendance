@@ -1,5 +1,10 @@
 package com.attendance.identity.domain;
 
+import java.util.Collection;
+import java.util.Locale;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 /**
  * <h2>Propósito</h2>
  * Regla pura: ¿el dominio del correo está en la lista de dominios permitidos?
@@ -29,4 +34,19 @@ package com.attendance.identity.domain;
  * </ul>
  */
 public final class EmailDomainPolicy {
+
+    private final Set<String> allowedDomains;
+
+    public EmailDomainPolicy(Collection<String> allowedDomains) {
+        if (allowedDomains == null || allowedDomains.isEmpty()) {
+            throw new IllegalArgumentException("Debe haber al menos un dominio permitido");
+        }
+        this.allowedDomains = allowedDomains.stream()
+                .map(domain -> domain.toLowerCase(Locale.ROOT))
+                .collect(Collectors.toUnmodifiableSet());
+    }
+
+    public boolean isAllowed(EmailAddress email) {
+        return allowedDomains.contains(email.domain());
+    }
 }

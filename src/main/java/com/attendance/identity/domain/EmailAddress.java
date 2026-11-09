@@ -1,5 +1,8 @@
 package com.attendance.identity.domain;
 
+import java.util.Locale;
+import java.util.Optional;
+
 /**
  * <h2>Propósito</h2>
  * Objeto de valor: un correo con formato válido, normalizado en minúsculas, del que se extrae el dominio.
@@ -27,5 +30,31 @@ package com.attendance.identity.domain;
  *   <li>Nada.</li>
  * </ul>
  */
-public record EmailAddress() {
+public record EmailAddress(String value) {
+
+    private static final char AT = '@';
+
+    public EmailAddress {
+        value = normalize(value);
+        if (!isWellFormed(value)) {
+            throw new IllegalArgumentException("El correo no tiene un formato válido");
+        }
+    }
+
+    public static Optional<EmailAddress> parse(String raw) {
+        return isWellFormed(normalize(raw)) ? Optional.of(new EmailAddress(raw)) : Optional.empty();
+    }
+
+    public String domain() {
+        return value.substring(value.indexOf(AT) + 1);
+    }
+
+    private static String normalize(String raw) {
+        return raw == null ? "" : raw.strip().toLowerCase(Locale.ROOT);
+    }
+
+    private static boolean isWellFormed(String normalized) {
+        final int at = normalized.indexOf(AT);
+        return at > 0 && at == normalized.lastIndexOf(AT) && at < normalized.length() - 1;
+    }
 }

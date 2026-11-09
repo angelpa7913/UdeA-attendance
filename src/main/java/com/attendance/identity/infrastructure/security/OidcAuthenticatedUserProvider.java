@@ -1,5 +1,15 @@
 package com.attendance.identity.infrastructure.security;
 
+import java.util.Optional;
+
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.stereotype.Component;
+
+import com.attendance.identity.application.port.out.AuthenticatedUserProvider;
+import com.attendance.identity.domain.EmailAddress;
+
 /**
  * <h2>Propósito</h2>
  * Implementa {@code AuthenticatedUserProvider} leyendo el {@code OidcUser} del {@code SecurityContext}.
@@ -25,5 +35,21 @@ package com.attendance.identity.infrastructure.security;
  *   <li>{@code AuthenticatedUserProvider} (port.out)</li>
  * </ul>
  */
-public class OidcAuthenticatedUserProvider {
+@Component
+public class OidcAuthenticatedUserProvider implements AuthenticatedUserProvider {
+
+    @Override
+    public Optional<AuthenticatedUser> authenticatedUser() {
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !(authentication.getPrincipal() instanceof OidcUser user)) {
+            return Optional.empty();
+        }
+        return EmailAddress.parse(user.getEmail()).map(email -> toAuthenticatedUser(user, email.value()));
+    }
+
+    private static AuthenticatedUser toAuthenticatedUser(OidcUser user, String email) {
+        final String fullName = user.getFullName();
+        final String displayName = fullName == null || fullName.isBlank() ? email : fullName;
+        return new AuthenticatedUser(user.getSubject(), email, displayName);
+    }
 }

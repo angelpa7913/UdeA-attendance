@@ -1,5 +1,7 @@
 package com.attendance.identity.application.port.out;
 
+import java.util.Optional;
+
 /**
  * <h2>Propósito</h2>
  * Puerto de salida: lee los datos crudos del usuario de la sesión HTTP actual.
@@ -25,4 +27,10 @@ package com.attendance.identity.application.port.out;
  * </ul>
  */
 public interface AuthenticatedUserProvider {
+
+    Optional<AuthenticatedUser> authenticatedUser();
+
+    /** Datos crudos del usuario de la sesión, con el correo ya normalizado. */
+    record AuthenticatedUser(String id, String email, String displayName) {
+    }
 }
