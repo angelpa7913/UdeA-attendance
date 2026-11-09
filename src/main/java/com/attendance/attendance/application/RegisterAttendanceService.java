@@ -1,5 +1,19 @@
 package com.attendance.attendance.application;
 
+import java.time.Clock;
+import java.time.Instant;
+import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+
+import com.attendance.attendance.api.RegisterAttendanceUseCase;
+import com.attendance.attendance.api.RegistrationResult;
+import com.attendance.attendance.application.port.out.AttendanceRepository;
+import com.attendance.attendance.domain.AttendanceRecord;
+import com.attendance.enrollment.api.CheckEnrollmentUseCase;
+import com.attendance.session.api.ValidateTokenUseCase;
+import com.attendance.session.api.ValidatedSession;
+
 /**
  * <h2>Propósito</h2>
  * Implementa {@code RegisterAttendanceUseCase}: ValidateToken → CheckEnrollment → save.
@@ -33,5 +47,47 @@ package com.attendance.attendance.application;
  *   <li>{@code Clock}</li>
  * </ul>
  */
-public class RegisterAttendanceService {
+// Sin @Transactional a propósito: un choque con la PK marcaría toda la transacción para rollback.
+@Service
+public class RegisterAttendanceService implements RegisterAttendanceUseCase {
+
+    private final ValidateTokenUseCase validateToken;
+    private final CheckEnrollmentUseCase checkEnrollment;
+    private final AttendanceRepository attendanceRepository;
+    private final Clock clock;
+
+    public RegisterAttendanceService(ValidateTokenUseCase validateToken, CheckEnrollmentUseCase checkEnrollment,
+            AttendanceRepository attendanceRepository, Clock clock) {
+        this.validateToken = validateToken;
+        this.checkEnrollment = checkEnrollment;
+        this.attendanceRepository = attendanceRepository;
+        this.clock = clock;
+    }
+
+    @Override
+    public RegistrationResult register(String rawToken, String participantEmail) {
+        final Optional<ValidatedSession> validated = validateToken.validate(rawToken);
+        if (validated.isEmpty()) {
+            return new RegistrationResult.InvalidToken();
+        }
+        if (!validated.get().open()) {
+            return new RegistrationResult.SessionClosed();
+        }
+        final long sessionId = validated.get().sessionId();
+        final Optional<Long> participantId =
+                checkEnrollment.findParticipantId(participantEmail, validated.get().courseId());
+        if (participantId.isEmpty()) {
+            return new RegistrationResult.NotEnrolled();
+        }
+        if (attendanceRepository.exists(sessionId, participantId.get())) {
+            return new RegistrationResult.AlreadyRegistered();
+        }
+        return save(sessionId, participantId.get());
+    }
+
+    private RegistrationResult save(long sessionId, long participantId) {
+        final Instant now = clock.instant();
+        final boolean saved = attendanceRepository.save(new AttendanceRecord(sessionId, participantId, now));
+        return saved ? new RegistrationResult.Registered(sessionId, now) : new RegistrationResult.AlreadyRegistered();
+    }
 }

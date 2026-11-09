@@ -1,7 +1,10 @@
 package com.attendance;
 
-import org.junit.jupiter.api.Disabled;
+import static org.assertj.core.api.Assertions.assertThatCode;
+
 import org.junit.jupiter.api.Test;
+import org.springframework.modulith.core.ApplicationModules;
+import org.springframework.modulith.docs.Documenter;
 
 /**
  * <h2>Propósito</h2>
@@ -28,16 +31,15 @@ import org.junit.jupiter.api.Test;
  */
 class ModularityTest {
 
+    private static final ApplicationModules MODULES = ApplicationModules.of(AttendanceApplication.class);
+
     @Test
-    @Disabled("TODO")
     void verifiesModularStructure() {
-        // Debe fallar si un módulo importa domain/application/infrastructure de otro módulo,
-        // o si hay dependencias cíclicas entre módulos.
+        MODULES.verify();
     }
 
     @Test
-    @Disabled("TODO")
     void writesDocumentation() {
-        // Debe generar la documentación de módulos (C4/PlantUML) sin lanzar errores.
+        assertThatCode(() -> new Documenter(MODULES).writeDocumentation()).doesNotThrowAnyException();
     }
 }

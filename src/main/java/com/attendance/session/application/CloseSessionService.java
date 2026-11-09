@@ -1,5 +1,12 @@
 package com.attendance.session.application;
 
+import java.time.Clock;
+
+import org.springframework.stereotype.Service;
+
+import com.attendance.session.api.CloseSessionUseCase;
+import com.attendance.session.application.port.out.SessionRepository;
+
 /**
  * <h2>Propósito</h2>
  * Implementa {@code CloseSessionUseCase}.
@@ -27,5 +34,23 @@ package com.attendance.session.application;
  *   <li>{@code Clock}</li>
  * </ul>
  */
-public class CloseSessionService {
+@Service
+public class CloseSessionService implements CloseSessionUseCase {
+
+    private final SessionRepository sessionRepository;
+    private final Clock clock;
+
+    public CloseSessionService(SessionRepository sessionRepository, Clock clock) {
+        this.sessionRepository = sessionRepository;
+        this.clock = clock;
+    }
+
+    @Override
+    public boolean close(long sessionId, String instructorEmail) {
+        return sessionRepository.findById(sessionId)
+                // SECURITY: solo el dueño de la sesión puede cerrarla.
+                .filter(session -> session.isOwnedBy(instructorEmail))
+                .map(session -> sessionRepository.save(session.close(clock.instant())))
+                .isPresent();
+    }
 }

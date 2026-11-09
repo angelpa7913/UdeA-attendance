@@ -1,5 +1,8 @@
 package com.attendance.enrollment.application.port.out;
 
+import java.io.InputStream;
+import java.util.List;
+
 /**
  * <h2>Propósito</h2>
  * Puerto de salida: leer filas de inscritos desde cualquier fuente (CSV, Excel, API de la institución).
@@ -26,4 +29,15 @@ package com.attendance.enrollment.application.port.out;
  * </ul>
  */
 public interface EnrollmentSource {
+
+    boolean supports(String sourceType);
+
+    /**
+     * Lee las filas de la fuente. Una fila incompleta se devuelve con sus campos en blanco para que
+     * el servicio la reporte; nunca se descarta en silencio.
+     *
+     * @throws IllegalArgumentException si la estructura de la fuente no es válida
+     * @throws java.io.UncheckedIOException si no se pudo leer
+     */
+    List<EnrollmentRow> read(InputStream data);
 }

@@ -19,8 +19,18 @@ Propósito: pantalla que el instructor proyecta: QR grande, cuenta regresiva y c
     <title th:text="${institutionName} + ' · Proyección'">Proyección</title>
 </head>
 <body>
-    <main id="projection">
-        <!-- TODO: img del QR, cuenta regresiva, contador y botón de cierre -->
+    <main id="projection"
+          th:data-qr-url="@{/instructor/sessions/{id}/qr.png(id=${sessionId})}"
+          th:data-token-info-url="@{/instructor/sessions/{id}/token-info(id=${sessionId})}"
+          th:data-count-url="@{/instructor/sessions/{id}/count(id=${sessionId})}"
+          th:data-window-seconds="${windowSeconds}">
+        <h1>Sesión <span th:text="${sessionId}">1</span></h1>
+        <img id="qr" th:src="@{/instructor/sessions/{id}/qr.png(id=${sessionId})}" alt="Código QR de asistencia">
+        <p>El código cambia en <strong id="countdown" th:text="${windowSeconds}">0</strong> s</p>
+        <p>Asistentes: <strong id="count">0</strong></p>
+        <form th:action="@{/instructor/sessions/{id}/close(id=${sessionId})}" method="post">
+            <button type="submit">Cerrar sesión</button>
+        </form>
     </main>
     <script th:src="@{/js/qr-rotator.js}" defer></script>
 </body>

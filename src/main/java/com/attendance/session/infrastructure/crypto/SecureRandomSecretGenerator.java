@@ -1,5 +1,12 @@
 package com.attendance.session.infrastructure.crypto;
 
+import java.security.SecureRandom;
+import java.util.Base64;
+
+import org.springframework.stereotype.Component;
+
+import com.attendance.session.application.port.out.SecretGenerator;
+
 /**
  * <h2>Propósito</h2>
  * Implementa {@code SecretGenerator} con {@code SecureRandom}.
@@ -24,5 +31,18 @@ package com.attendance.session.infrastructure.crypto;
  *   <li>{@code SecretGenerator} (port.out)</li>
  * </ul>
  */
-public class SecureRandomSecretGenerator {
+@Component
+public class SecureRandomSecretGenerator implements SecretGenerator {
+
+    private static final int SECRET_BYTES = 32;
+
+    private final SecureRandom random = new SecureRandom();
+
+    // SECURITY: el secreto lo genera la aplicación y nunca se envía al navegador.
+    @Override
+    public String newSecret() {
+        final byte[] secret = new byte[SECRET_BYTES];
+        random.nextBytes(secret);
+        return Base64.getEncoder().encodeToString(secret);
+    }
 }

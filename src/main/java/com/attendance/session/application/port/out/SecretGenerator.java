@@ -23,4 +23,6 @@ package com.attendance.session.application.port.out;
  * </ul>
  */
 public interface SecretGenerator {
+
+    String newSecret();
 }

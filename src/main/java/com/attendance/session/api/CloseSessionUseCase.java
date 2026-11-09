@@ -24,4 +24,6 @@ package com.attendance.session.api;
  * </ul>
  */
 public interface CloseSessionUseCase {
+
+    boolean close(long sessionId, String instructorEmail);
 }

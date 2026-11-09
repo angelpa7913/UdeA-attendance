@@ -19,8 +19,47 @@ Propósito: lista de cursos del instructor y formulario para importar inscritos.
 <body>
     <main>
         <h1>Mis cursos</h1>
-        <!-- TODO: tabla de cursos con botón para iniciar sesión -->
-        <!-- TODO: formulario de importación CSV -->
+        <section th:if="${importSummary}">
+            <h2>Resultado de la importación</h2>
+            <p>
+                Importadas: <strong th:text="${importSummary.imported}">0</strong>,
+                omitidas: <strong th:text="${importSummary.skipped}">0</strong>
+            </p>
+            <ul th:unless="${#lists.isEmpty(importSummary.errors)}">
+                <li th:each="error : ${importSummary.errors}" th:text="${error}">Error</li>
+            </ul>
+        </section>
+
+        <p th:if="${#lists.isEmpty(courses)}">No tienes cursos.</p>
+        <table th:unless="${#lists.isEmpty(courses)}">
+            <thead>
+                <tr><th>Código</th><th>Grupo</th><th>Nombre</th><th></th></tr>
+            </thead>
+            <tbody>
+                <tr th:each="course : ${courses}">
+                    <td th:text="${course.code}">Código</td>
+                    <td th:text="${course.group}">Grupo</td>
+                    <td th:text="${course.name}">Nombre</td>
+                    <td>
+                        <form th:action="@{/instructor/sessions}" method="post">
+                            <input type="hidden" name="courseId" th:value="${course.id}">
+                            <button type="submit">Iniciar sesión de asistencia</button>
+                        </form>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Importar inscritos</h2>
+        <p>
+            Archivo CSV separado por comas, con las columnas
+            <code>email, full_name, course_code, course_group, course_name</code>
+            y, de forma opcional, <code>external_id</code>.
+        </p>
+        <form th:action="@{/instructor/courses/import}" method="post" enctype="multipart/form-data">
+            <input type="file" name="file" accept=".csv" required>
+            <button type="submit">Importar</button>
+        </form>
     </main>
 </body>
 </html>

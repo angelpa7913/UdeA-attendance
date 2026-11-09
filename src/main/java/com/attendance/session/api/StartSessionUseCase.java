@@ -25,4 +25,6 @@ package com.attendance.session.api;
  * </ul>
  */
 public interface StartSessionUseCase {
+
+    StartSessionResult start(long courseId, String instructorEmail);
 }

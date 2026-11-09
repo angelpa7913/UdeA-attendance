@@ -1,5 +1,7 @@
 package com.attendance.attendance.application.port.out;
 
+import com.attendance.attendance.domain.AttendanceRecord;
+
 /**
  * <h2>Propósito</h2>
  * Puerto de salida: persistencia de registros de asistencia.
@@ -26,4 +28,16 @@ package com.attendance.attendance.application.port.out;
  * </ul>
  */
 public interface AttendanceRepository {
+
+    boolean exists(long sessionId, long participantId);
+
+    /**
+     * Guarda el registro. Debe ser seguro ante carreras: la PK {@code (session_id, participant_id)}
+     * es la defensa final.
+     *
+     * @return {@code false} si ya existía
+     */
+    boolean save(AttendanceRecord attendanceRecord);
+
+    long countBySession(long sessionId);
 }

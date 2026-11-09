@@ -1,5 +1,7 @@
 package com.attendance.enrollment.api;
 
+import java.util.Optional;
+
 /**
  * <h2>Propósito</h2>
  * Puerto de entrada: ¿el correo está inscrito en el curso?
@@ -24,4 +26,6 @@ package com.attendance.enrollment.api;
  * </ul>
  */
 public interface CheckEnrollmentUseCase {
+
+    Optional<Long> findParticipantId(String email, long courseId);
 }

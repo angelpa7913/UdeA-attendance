@@ -1,5 +1,7 @@
 package com.attendance.session.domain;
 
+import java.util.Optional;
+
 /**
  * <h2>Propósito</h2>
  * Objeto de valor del token QR: {@code sessionId.window.signature}.
@@ -28,5 +30,37 @@ package com.attendance.session.domain;
  *   <li>Nada.</li>
  * </ul>
  */
-public record QrToken() {
+public record QrToken(long sessionId, long window, String signature) {
+
+    private static final String SEPARATOR = ".";
+    private static final String SEPARATOR_REGEX = "\\.";
+    private static final int PARTS = 3;
+    private static final int SIGNATURE_INDEX = 2;
+    private static final int MAX_RAW_LENGTH = 200;
+    private static final int KEEP_EMPTY_PARTS = -1;
+
+    public static Optional<QrToken> parse(String raw) {
+        // SECURITY: se limita la longitud antes de procesar datos que llegan desde afuera.
+        if (raw == null || raw.length() > MAX_RAW_LENGTH) {
+            return Optional.empty();
+        }
+        final String[] parts = raw.split(SEPARATOR_REGEX, KEEP_EMPTY_PARTS);
+        if (parts.length != PARTS || parts[SIGNATURE_INDEX].isEmpty()) {
+            return Optional.empty();
+        }
+        try {
+            return Optional.of(new QrToken(Long.parseLong(parts[0]), Long.parseLong(parts[1]),
+                    parts[SIGNATURE_INDEX]));
+        } catch (NumberFormatException e) {
+            return Optional.empty();
+        }
+    }
+
+    public String serialize() {
+        return signedData() + SEPARATOR + signature;
+    }
+
+    public String signedData() {
+        return sessionId + SEPARATOR + window;
+    }
 }

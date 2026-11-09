@@ -12,6 +12,12 @@ spring:
     username: ${DB_USER}
     password: ${DB_PASSWORD}
 
+  # SECURITY: limita el tamaño de los archivos que se pueden subir (importación CSV)
+  servlet:
+    multipart:
+      max-file-size: 1MB
+      max-request-size: 1MB
+
   jpa:
     open-in-view: false
     hibernate:

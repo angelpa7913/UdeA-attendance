@@ -1,5 +1,12 @@
 package com.attendance.session.infrastructure.persistence;
 
+import java.util.Optional;
+
+import org.springframework.stereotype.Component;
+
+import com.attendance.session.application.port.out.SessionRepository;
+import com.attendance.session.domain.ClassSession;
+
 /**
  * <h2>Propósito</h2>
  * Implementa {@code SessionRepository} con Spring Data.
@@ -24,5 +31,27 @@ package com.attendance.session.infrastructure.persistence;
  *   <li>{@code SessionSpringDataRepository}, {@code SessionMapper}</li>
  * </ul>
  */
-public class SessionPersistenceAdapter {
+@Component
+public class SessionPersistenceAdapter implements SessionRepository {
+
+    private final SessionSpringDataRepository sessions;
+
+    public SessionPersistenceAdapter(SessionSpringDataRepository sessions) {
+        this.sessions = sessions;
+    }
+
+    @Override
+    public ClassSession save(ClassSession session) {
+        return SessionMapper.toDomain(sessions.save(SessionMapper.toJpa(session)));
+    }
+
+    @Override
+    public Optional<ClassSession> findById(long id) {
+        return sessions.findById(id).map(SessionMapper::toDomain);
+    }
+
+    @Override
+    public Optional<ClassSession> findOpenByCourse(long courseId) {
+        return sessions.findFirstByCourseIdAndClosedAtIsNull(courseId).map(SessionMapper::toDomain);
+    }
 }

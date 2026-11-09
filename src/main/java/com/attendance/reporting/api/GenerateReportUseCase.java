@@ -1,5 +1,7 @@
 package com.attendance.reporting.api;
 
+import java.util.Optional;
+
 /**
  * <h2>Propósito</h2>
  * Puerto de entrada: generar el reporte de una sesión en el formato pedido.
@@ -25,4 +27,6 @@ package com.attendance.reporting.api;
  * </ul>
  */
 public interface GenerateReportUseCase {
+
+    Optional<GeneratedReport> generate(long sessionId, ReportFormat format, String instructorEmail);
 }

@@ -1,5 +1,11 @@
 package com.attendance.attendance.infrastructure.persistence;
 
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.stereotype.Component;
+
+import com.attendance.attendance.application.port.out.AttendanceRepository;
+import com.attendance.attendance.domain.AttendanceRecord;
+
 /**
  * <h2>Propósito</h2>
  * Implementa {@code AttendanceRepository} con Spring Data.
@@ -25,5 +31,32 @@ package com.attendance.attendance.infrastructure.persistence;
  *   <li>{@code AttendanceRecordSpringDataRepository}, {@code AttendanceRecordMapper}</li>
  * </ul>
  */
-public class AttendancePersistenceAdapter {
+@Component
+public class AttendancePersistenceAdapter implements AttendanceRepository {
+
+    private final AttendanceRecordSpringDataRepository records;
+
+    public AttendancePersistenceAdapter(AttendanceRecordSpringDataRepository records) {
+        this.records = records;
+    }
+
+    @Override
+    public boolean exists(long sessionId, long participantId) {
+        return records.existsBySessionIdAndParticipantId(sessionId, participantId);
+    }
+
+    @Override
+    public boolean save(AttendanceRecord attendanceRecord) {
+        try {
+            records.saveAndFlush(AttendanceRecordMapper.toJpa(attendanceRecord));
+            return true;
+        } catch (DataIntegrityViolationException e) {
+            return false;
+        }
+    }
+
+    @Override
+    public long countBySession(long sessionId) {
+        return records.countBySessionId(sessionId);
+    }
 }

@@ -1,5 +1,19 @@
 package com.attendance.session.application;
 
+import java.time.Clock;
+import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+
+import com.attendance.session.api.ValidatedSession;
+import com.attendance.session.api.ValidateTokenUseCase;
+import com.attendance.session.application.port.out.SessionRepository;
+import com.attendance.session.application.port.out.TokenSigner;
+import com.attendance.session.domain.ClassSession;
+import com.attendance.session.domain.QrToken;
+import com.attendance.session.domain.TimeWindow;
+import com.attendance.shared.config.AttendanceProperties;
+
 /**
  * <h2>Propósito</h2>
  * Implementa {@code ValidateTokenUseCase}: formato → sesión existe → firma → ventana.
@@ -31,5 +45,41 @@ package com.attendance.session.application;
  *   <li>{@code Clock}</li>
  * </ul>
  */
-public class ValidateTokenService {
+@Service
+public class ValidateTokenService implements ValidateTokenUseCase {
+
+    private final SessionRepository sessionRepository;
+    private final TokenSigner tokenSigner;
+    private final AttendanceProperties properties;
+    private final Clock clock;
+
+    public ValidateTokenService(SessionRepository sessionRepository, TokenSigner tokenSigner,
+            AttendanceProperties properties, Clock clock) {
+        this.sessionRepository = sessionRepository;
+        this.tokenSigner = tokenSigner;
+        this.properties = properties;
+        this.clock = clock;
+    }
+
+    @Override
+    public Optional<ValidatedSession> validate(String rawToken) {
+        return QrToken.parse(rawToken).flatMap(this::validate);
+    }
+
+    private Optional<ValidatedSession> validate(QrToken token) {
+        return sessionRepository.findById(token.sessionId())
+                // SECURITY: la firma va antes que la ventana y el estado, para no revelar nada sin firma válida.
+                .filter(session -> tokenSigner.verify(token.signedData(), token.signature(), session.secret()))
+                .filter(session -> isWithinTolerance(token))
+                .map(session -> toValidated(token, session));
+    }
+
+    private boolean isWithinTolerance(QrToken token) {
+        final TimeWindow current = TimeWindow.of(clock.instant(), properties.qr().windowSeconds());
+        return new TimeWindow(token.window()).isWithinTolerance(current, properties.qr().toleranceWindows());
+    }
+
+    private static ValidatedSession toValidated(QrToken token, ClassSession session) {
+        return new ValidatedSession(token.sessionId(), session.courseId(), session.isOpen());
+    }
 }

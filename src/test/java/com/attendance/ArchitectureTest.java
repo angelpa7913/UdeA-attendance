@@ -1,7 +1,16 @@
 package com.attendance;
 
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.Test;
+import static com.tngtech.archunit.core.domain.JavaClass.Predicates.simpleNameEndingWith;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noFields;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
+import com.tngtech.archunit.core.importer.ImportOption;
+import com.tngtech.archunit.junit.AnalyzeClasses;
+import com.tngtech.archunit.junit.ArchTest;
+import com.tngtech.archunit.lang.ArchRule;
 
 /**
  * <h2>Propósito</h2>
@@ -30,50 +39,46 @@ import org.junit.jupiter.api.Test;
  * <h2>Depende de</h2>
  * {@code archunit-junit5}. No levanta el contexto de Spring.
  */
+@AnalyzeClasses(packages = "com.attendance", importOptions = ImportOption.DoNotIncludeTests.class)
 class ArchitectureTest {
 
-    @Test
-    @Disabled("TODO")
-    void domainDoesNotDependOnSpringOrJpa() {
-        // Ninguna clase en ..domain.. depende de org.springframework.., jakarta.persistence..
-        // ni de org.hibernate..
-    }
+    private static final String DOMAIN = "com.attendance..domain..";
+    private static final String API = "com.attendance..api..";
+    private static final String APPLICATION = "com.attendance..application..";
+    private static final String INFRASTRUCTURE = "com.attendance..infrastructure..";
 
-    @Test
-    @Disabled("TODO")
-    void domainDoesNotDependOnOuterLayers() {
-        // ..domain.. no depende de ..application.., ..infrastructure.. ni ..api..
-    }
+    @ArchTest
+    static final ArchRule domainDoesNotDependOnSpringOrJpa = noClasses()
+            .that().resideInAPackage(DOMAIN)
+            .should().dependOnClassesThat()
+            .resideInAnyPackage("org.springframework..", "jakarta.persistence..", "org.hibernate..");
 
-    @Test
-    @Disabled("TODO")
-    void applicationDoesNotDependOnInfrastructure() {
-        // ..application.. no depende de ..infrastructure.. (solo de puertos en port.out)
-    }
+    @ArchTest
+    static final ArchRule domainDoesNotDependOnOuterLayers = noClasses()
+            .that().resideInAPackage(DOMAIN)
+            .should().dependOnClassesThat().resideInAnyPackage(APPLICATION, INFRASTRUCTURE, API);
 
-    @Test
-    @Disabled("TODO")
-    void controllersDoNotUseRepositories() {
-        // Clases en ..infrastructure.web.. no dependen de ..infrastructure.persistence..
-        // ni de ..application.port.out.. (solo llaman casos de uso del api).
-    }
+    @ArchTest
+    static final ArchRule applicationDoesNotDependOnInfrastructure = noClasses()
+            .that().resideInAPackage(APPLICATION)
+            .should().dependOnClassesThat().resideInAPackage(INFRASTRUCTURE);
 
-    @Test
-    @Disabled("TODO")
-    void noFieldInjection() {
-        // Ningún campo está anotado con @Autowired (inyección solo por constructor).
-    }
+    @ArchTest
+    static final ArchRule controllersDoNotUseRepositories = noClasses()
+            .that().resideInAPackage("com.attendance..infrastructure.web..")
+            .should().dependOnClassesThat()
+            .resideInAnyPackage("com.attendance..infrastructure.persistence..", "com.attendance..application.port.out..");
 
-    @Test
-    @Disabled("TODO")
-    void useCasesAreInterfacesInApi() {
-        // Las clases cuyo nombre termina en "UseCase" son interfaces y residen en ..api..
-    }
+    @ArchTest
+    static final ArchRule noFieldInjection = noFields().should().beAnnotatedWith(Autowired.class);
 
-    @Test
-    @Disabled("TODO")
-    void servicesImplementAUseCase() {
-        // Las clases en ..application.. cuyo nombre termina en "Service" implementan
-        // al menos una interfaz que termina en "UseCase".
-    }
+    @ArchTest
+    static final ArchRule useCasesAreInterfacesInApi = classes()
+            .that().haveSimpleNameEndingWith("UseCase")
+            .should().beInterfaces().andShould().resideInAPackage(API);
+
+    @ArchTest
+    static final ArchRule servicesImplementAUseCase = classes()
+            .that().resideInAPackage(APPLICATION).and().haveSimpleNameEndingWith("Service")
+            .should().implement(simpleNameEndingWith("UseCase"));
 }

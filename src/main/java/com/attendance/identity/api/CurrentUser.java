@@ -26,6 +26,8 @@ package com.attendance.identity.api;
  */
 public record CurrentUser(String id, String email, String displayName, String role) {
 
+    private static final String INSTRUCTOR_ROLE = "INSTRUCTOR";
+
     public CurrentUser {
         if (id == null || id.isBlank()) {
             throw new IllegalArgumentException("El id del usuario no puede estar en blanco");
@@ -33,5 +35,9 @@ public record CurrentUser(String id, String email, String displayName, String ro
         if (email == null || email.isBlank()) {
             throw new IllegalArgumentException("El correo del usuario no puede estar en blanco");
         }
+    }
+
+    public boolean isInstructor() {
+        return INSTRUCTOR_ROLE.equals(role);
     }
 }

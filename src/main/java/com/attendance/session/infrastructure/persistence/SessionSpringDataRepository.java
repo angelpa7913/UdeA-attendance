@@ -1,5 +1,9 @@
 package com.attendance.session.infrastructure.persistence;
 
+import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
 /**
  * <h2>Propósito</h2>
  * Repositorio Spring Data de {@code SessionJpaEntity}.
@@ -22,5 +26,7 @@ package com.attendance.session.infrastructure.persistence;
  *   <li>{@code SessionJpaEntity}</li>
  * </ul>
  */
-public interface SessionSpringDataRepository {
+public interface SessionSpringDataRepository extends JpaRepository<SessionJpaEntity, Long> {
+
+    Optional<SessionJpaEntity> findFirstByCourseIdAndClosedAtIsNull(long courseId);
 }

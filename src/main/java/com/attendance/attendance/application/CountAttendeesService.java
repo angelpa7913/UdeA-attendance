@@ -1,5 +1,10 @@
 package com.attendance.attendance.application;
 
+import org.springframework.stereotype.Service;
+
+import com.attendance.attendance.api.CountAttendeesUseCase;
+import com.attendance.attendance.application.port.out.AttendanceRepository;
+
 /**
  * <h2>Propósito</h2>
  * Implementa {@code CountAttendeesUseCase}.
@@ -24,5 +29,17 @@ package com.attendance.attendance.application;
  *   <li>{@code AttendanceRepository} (port.out)</li>
  * </ul>
  */
-public class CountAttendeesService {
+@Service
+public class CountAttendeesService implements CountAttendeesUseCase {
+
+    private final AttendanceRepository attendanceRepository;
+
+    public CountAttendeesService(AttendanceRepository attendanceRepository) {
+        this.attendanceRepository = attendanceRepository;
+    }
+
+    @Override
+    public long countBySession(long sessionId) {
+        return attendanceRepository.countBySession(sessionId);
+    }
 }

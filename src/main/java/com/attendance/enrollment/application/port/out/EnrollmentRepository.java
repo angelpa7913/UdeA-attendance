@@ -1,5 +1,12 @@
 package com.attendance.enrollment.application.port.out;
 
+import java.util.List;
+import java.util.Optional;
+
+import com.attendance.enrollment.domain.Course;
+import com.attendance.enrollment.domain.Enrollment;
+import com.attendance.enrollment.domain.Participant;
+
 /**
  * <h2>Propósito</h2>
  * Puerto de salida: persistencia de participantes, cursos e inscripciones.
@@ -30,4 +37,15 @@ package com.attendance.enrollment.application.port.out;
  * </ul>
  */
 public interface EnrollmentRepository {
+
+    Optional<Long> findParticipantIdEnrolled(String email, long courseId);
+
+    List<Course> findCoursesByInstructor(String email);
+
+    Participant saveParticipantIfAbsent(Participant participant);
+
+    Course saveCourseIfAbsent(Course course);
+
+    /** Devuelve {@code false} si la inscripción ya existía. */
+    boolean enroll(Enrollment enrollment);
 }

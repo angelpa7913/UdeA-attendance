@@ -24,4 +24,6 @@ package com.attendance.attendance.api;
  * </ul>
  */
 public interface RegisterAttendanceUseCase {
+
+    RegistrationResult register(String rawToken, String participantEmail);
 }

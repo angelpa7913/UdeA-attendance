@@ -1,7 +1,14 @@
 package com.attendance.enrollment.application;
 
-import org.junit.jupiter.api.Disabled;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+
+import java.util.Optional;
+
 import org.junit.jupiter.api.Test;
+
+import com.attendance.enrollment.application.port.out.EnrollmentRepository;
 
 /**
  * <h2>Propósito</h2>
@@ -31,21 +38,27 @@ import org.junit.jupiter.api.Test;
  */
 class CheckEnrollmentServiceTest {
 
+    private final EnrollmentRepository repository = mock(EnrollmentRepository.class);
+    private final CheckEnrollmentService service = new CheckEnrollmentService(repository);
+
     @Test
-    @Disabled("TODO")
     void returnsParticipantIdWhenEnrolled() {
-        // Correo inscrito en el curso → Optional con su id.
+        when(repository.findParticipantIdEnrolled("ana@x.com", 7L)).thenReturn(Optional.of(3L));
+
+        assertThat(service.findParticipantId("ana@x.com", 7L)).contains(3L);
     }
 
     @Test
-    @Disabled("TODO")
     void returnsEmptyWhenNotEnrolled() {
-        // Correo no inscrito → Optional.empty().
+        when(repository.findParticipantIdEnrolled("ana@x.com", 7L)).thenReturn(Optional.empty());
+
+        assertThat(service.findParticipantId("ana@x.com", 7L)).isEmpty();
     }
 
     @Test
-    @Disabled("TODO")
     void ignoresEmailCase() {
-        // `Ana@X.COM` y `ana@x.com` se consideran el mismo participante.
+        when(repository.findParticipantIdEnrolled("ana@x.com", 7L)).thenReturn(Optional.of(3L));
+
+        assertThat(service.findParticipantId("Ana@X.COM", 7L)).contains(3L);
     }
 }

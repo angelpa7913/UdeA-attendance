@@ -1,5 +1,19 @@
 package com.attendance.session.application;
 
+import java.time.Clock;
+import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+
+import com.attendance.session.api.CurrentToken;
+import com.attendance.session.api.GetCurrentTokenUseCase;
+import com.attendance.session.application.port.out.SessionRepository;
+import com.attendance.session.application.port.out.TokenSigner;
+import com.attendance.session.domain.ClassSession;
+import com.attendance.session.domain.QrToken;
+import com.attendance.session.domain.TimeWindow;
+import com.attendance.shared.config.AttendanceProperties;
+
 /**
  * <h2>Propósito</h2>
  * Implementa {@code GetCurrentTokenUseCase}: calcula el token de la ventana actual.
@@ -29,5 +43,36 @@ package com.attendance.session.application;
  *   <li>{@code Clock}</li>
  * </ul>
  */
-public class GetCurrentTokenService {
+@Service
+public class GetCurrentTokenService implements GetCurrentTokenUseCase {
+
+    private final SessionRepository sessionRepository;
+    private final TokenSigner tokenSigner;
+    private final AttendanceProperties properties;
+    private final Clock clock;
+
+    public GetCurrentTokenService(SessionRepository sessionRepository, TokenSigner tokenSigner,
+            AttendanceProperties properties, Clock clock) {
+        this.sessionRepository = sessionRepository;
+        this.tokenSigner = tokenSigner;
+        this.properties = properties;
+        this.clock = clock;
+    }
+
+    @Override
+    public Optional<CurrentToken> currentToken(long sessionId, String instructorEmail) {
+        return sessionRepository.findById(sessionId)
+                .filter(ClassSession::isOpen)
+                .filter(session -> session.isOwnedBy(instructorEmail))
+                .map(session -> tokenFor(sessionId, session));
+    }
+
+    private CurrentToken tokenFor(long sessionId, ClassSession session) {
+        final long windowSeconds = properties.qr().windowSeconds();
+        final TimeWindow window = TimeWindow.of(clock.instant(), windowSeconds);
+        final String data = new QrToken(sessionId, window.number(), "").signedData();
+        final String signature = tokenSigner.sign(data, session.secret());
+        final QrToken token = new QrToken(sessionId, window.number(), signature);
+        return new CurrentToken(token.serialize(), window.end(windowSeconds));
+    }
 }

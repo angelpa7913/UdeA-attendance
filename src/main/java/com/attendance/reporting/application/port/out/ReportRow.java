@@ -1,5 +1,7 @@
 package com.attendance.reporting.application.port.out;
 
+import java.time.Instant;
+
 /**
  * <h2>Propósito</h2>
  * Fila neutral del reporte, independiente del formato de salida.
@@ -25,5 +27,7 @@ package com.attendance.reporting.application.port.out;
  * <h2>Notas</h2>
  * Archivo agregado respecto al CONTEXTO: es el tipo que devuelve {@code ReportDataSource} y recibe {@code ReportExporter}.<br>
  */
-public record ReportRow() {
+public record ReportRow(String courseCode, String courseGroup, String courseName, long sessionId,
+        Instant sessionOpenedAt, String participantEmail, String participantName, String externalId,
+        Instant registeredAt) {
 }

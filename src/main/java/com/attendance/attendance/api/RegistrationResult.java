@@ -1,5 +1,7 @@
 package com.attendance.attendance.api;
 
+import java.time.Instant;
+
 /**
  * <h2>Propósito</h2>
  * Resultado tipado del registro: cada caso del flujo normal es un record.
@@ -27,7 +29,7 @@ package com.attendance.attendance.api;
  */
 public sealed interface RegistrationResult {
 
-    record Registered() implements RegistrationResult {
+    record Registered(long sessionId, Instant registeredAt) implements RegistrationResult {
     }
 
     record InvalidToken() implements RegistrationResult {

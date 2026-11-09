@@ -1,5 +1,13 @@
 package com.attendance.enrollment.application;
 
+import java.util.Locale;
+import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+
+import com.attendance.enrollment.api.CheckEnrollmentUseCase;
+import com.attendance.enrollment.application.port.out.EnrollmentRepository;
+
 /**
  * <h2>Propósito</h2>
  * Implementa {@code CheckEnrollmentUseCase}.
@@ -25,5 +33,17 @@ package com.attendance.enrollment.application;
  *   <li>{@code EnrollmentRepository} (port.out)</li>
  * </ul>
  */
-public class CheckEnrollmentService {
+@Service
+public class CheckEnrollmentService implements CheckEnrollmentUseCase {
+
+    private final EnrollmentRepository enrollmentRepository;
+
+    public CheckEnrollmentService(EnrollmentRepository enrollmentRepository) {
+        this.enrollmentRepository = enrollmentRepository;
+    }
+
+    @Override
+    public Optional<Long> findParticipantId(String email, long courseId) {
+        return enrollmentRepository.findParticipantIdEnrolled(email.strip().toLowerCase(Locale.ROOT), courseId);
+    }
 }

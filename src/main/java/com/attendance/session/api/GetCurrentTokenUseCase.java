@@ -1,5 +1,7 @@
 package com.attendance.session.api;
 
+import java.util.Optional;
+
 /**
  * <h2>Propósito</h2>
  * Puerto de entrada: el token QR vigente de una sesión abierta (lo pide el navegador del instructor cada N segundos).
@@ -25,4 +27,6 @@ package com.attendance.session.api;
  * </ul>
  */
 public interface GetCurrentTokenUseCase {
+
+    Optional<CurrentToken> currentToken(long sessionId, String instructorEmail);
 }

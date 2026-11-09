@@ -1,5 +1,7 @@
 package com.attendance.attendance.infrastructure.persistence;
 
+import com.attendance.attendance.domain.AttendanceRecord;
+
 /**
  * <h2>Propósito</h2>
  * Convierte {@code AttendanceRecord} ↔ {@code AttendanceRecordJpaEntity}.
@@ -23,4 +25,16 @@ package com.attendance.attendance.infrastructure.persistence;
  * </ul>
  */
 public final class AttendanceRecordMapper {
+
+    private AttendanceRecordMapper() {
+    }
+
+    static AttendanceRecord toDomain(AttendanceRecordJpaEntity entity) {
+        return new AttendanceRecord(entity.getSessionId(), entity.getParticipantId(), entity.getRegisteredAt());
+    }
+
+    static AttendanceRecordJpaEntity toJpa(AttendanceRecord attendanceRecord) {
+        return new AttendanceRecordJpaEntity(attendanceRecord.sessionId(), attendanceRecord.participantId(),
+                attendanceRecord.registeredAt());
+    }
 }

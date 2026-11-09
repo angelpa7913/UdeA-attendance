@@ -1,5 +1,7 @@
 package com.attendance.reporting.application.port.out;
 
+import java.util.List;
+
 /**
  * <h2>Propósito</h2>
  * Puerto de salida: filas de la vista {@code attendance_report} para una sesión.
@@ -23,4 +25,7 @@ package com.attendance.reporting.application.port.out;
  * </ul>
  */
 public interface ReportDataSource {
+
+    /** Devuelve una lista vacía si la sesión no es del instructor o si nadie registró asistencia. */
+    List<ReportRow> rowsFor(long sessionId, String instructorEmail);
 }

@@ -1,5 +1,14 @@
 package com.attendance.enrollment.application;
 
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+import com.attendance.enrollment.api.CourseSummary;
+import com.attendance.enrollment.api.ListInstructorCoursesUseCase;
+import com.attendance.enrollment.application.port.out.EnrollmentRepository;
+import com.attendance.enrollment.domain.Course;
+
 /**
  * <h2>Propósito</h2>
  * Implementa {@code ListInstructorCoursesUseCase}.
@@ -24,5 +33,24 @@ package com.attendance.enrollment.application;
  *   <li>{@code EnrollmentRepository} (port.out)</li>
  * </ul>
  */
-public class ListInstructorCoursesService {
+@Service
+public class ListInstructorCoursesService implements ListInstructorCoursesUseCase {
+
+    private final EnrollmentRepository enrollmentRepository;
+
+    public ListInstructorCoursesService(EnrollmentRepository enrollmentRepository) {
+        this.enrollmentRepository = enrollmentRepository;
+    }
+
+    @Override
+    public List<CourseSummary> coursesOf(String instructorEmail) {
+        return enrollmentRepository.findCoursesByInstructor(instructorEmail).stream()
+                .map(ListInstructorCoursesService::toSummary)
+                .toList();
+    }
+
+    private static CourseSummary toSummary(Course course) {
+        return new CourseSummary(course.id().orElseThrow(), course.code(), course.group(), course.name(),
+                course.instructorEmail());
+    }
 }

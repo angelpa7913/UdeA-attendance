@@ -1,5 +1,17 @@
 package com.attendance.session.application;
 
+import java.time.Clock;
+import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+
+import com.attendance.enrollment.api.ListInstructorCoursesUseCase;
+import com.attendance.session.api.StartSessionResult;
+import com.attendance.session.api.StartSessionUseCase;
+import com.attendance.session.application.port.out.SecretGenerator;
+import com.attendance.session.application.port.out.SessionRepository;
+import com.attendance.session.domain.ClassSession;
+
 /**
  * <h2>Propósito</h2>
  * Implementa {@code StartSessionUseCase}: verifica que el instructor sea dueño del curso y abre la sesión.
@@ -28,5 +40,34 @@ package com.attendance.session.application;
  *   <li>{@code java.time.Clock}</li>
  * </ul>
  */
-public class StartSessionService {
+@Service
+public class StartSessionService implements StartSessionUseCase {
+
+    private final ListInstructorCoursesUseCase listInstructorCourses;
+    private final SessionRepository sessionRepository;
+    private final SecretGenerator secretGenerator;
+    private final Clock clock;
+
+    public StartSessionService(ListInstructorCoursesUseCase listInstructorCourses,
+            SessionRepository sessionRepository, SecretGenerator secretGenerator, Clock clock) {
+        this.listInstructorCourses = listInstructorCourses;
+        this.sessionRepository = sessionRepository;
+        this.secretGenerator = secretGenerator;
+        this.clock = clock;
+    }
+
+    @Override
+    public StartSessionResult start(long courseId, String instructorEmail) {
+        // SECURITY: solo el instructor del curso puede abrirle sesiones.
+        if (listInstructorCourses.coursesOf(instructorEmail).stream().noneMatch(c -> c.id() == courseId)) {
+            return new StartSessionResult.NotCourseOwner();
+        }
+        final Optional<ClassSession> open = sessionRepository.findOpenByCourse(courseId);
+        if (open.isPresent()) {
+            return new StartSessionResult.AlreadyOpen(open.get().id().orElseThrow());
+        }
+        final ClassSession session = sessionRepository.save(
+                ClassSession.open(courseId, instructorEmail, secretGenerator.newSecret(), clock.instant()));
+        return new StartSessionResult.Started(session.id().orElseThrow());
+    }
 }

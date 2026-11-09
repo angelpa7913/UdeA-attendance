@@ -23,5 +23,9 @@ package com.attendance.enrollment.api;
  *   <li>Nada.</li>
  * </ul>
  */
-public record CourseSummary() {
+public record CourseSummary(long id, String code, String group, String name, String instructorEmail) {
+
+    public String label() {
+        return code + "-" + group;
+    }
 }

@@ -1,5 +1,7 @@
 package com.attendance.session.api;
 
+import java.util.Optional;
+
 /**
  * <h2>Propósito</h2>
  * Puerto de entrada: ¿este token escaneado es auténtico y vigente?
@@ -25,4 +27,13 @@ package com.attendance.session.api;
  * </ul>
  */
 public interface ValidateTokenUseCase {
+
+    /**
+     * Valida un token escaneado. Una sesión cerrada se devuelve con {@code open = false}, para que
+     * attendance distinga {@code SessionClosed} de {@code InvalidToken}.
+     *
+     * @param rawToken token tal como llegó
+     * @return vacío si el token está mal formado, su firma es inválida o su ventana venció
+     */
+    Optional<ValidatedSession> validate(String rawToken);
 }

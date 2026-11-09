@@ -19,3 +19,83 @@
  * Prohibido: while (true), bucles de espera activa o recursión sin fin. Solo setInterval/clearInterval.
  * Depende de: nada (JavaScript del navegador, sin librerías).
  */
+
+document.addEventListener('DOMContentLoaded', () => {
+    const COUNTDOWN_MILLIS = 1000;
+    const COUNT_REFRESH_MILLIS = 5000;
+
+    const projection = document.getElementById('projection');
+    const qr = document.getElementById('qr');
+    const countdown = document.getElementById('countdown');
+    const count = document.getElementById('count');
+    if (!projection || !qr || !countdown || !count) {
+        return;
+    }
+
+    const { qrUrl, tokenInfoUrl, countUrl } = projection.dataset;
+    const windowSeconds = Number(projection.dataset.windowSeconds);
+    if (!qrUrl || !tokenInfoUrl || !countUrl || !(windowSeconds > 0)) {
+        return;
+    }
+
+    let remaining = windowSeconds;
+    let countdownTimer;
+    let countTimer;
+
+    const fetchJson = async (url) => {
+        const response = await fetch(url, { cache: 'no-store', redirect: 'error' });
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        return response.json();
+    };
+
+    const stopAll = () => {
+        clearInterval(countdownTimer);
+        clearInterval(countTimer);
+    };
+
+    const render = () => {
+        countdown.textContent = String(remaining);
+    };
+
+    const alignWithServer = async () => {
+        try {
+            const { expiresAt } = await fetchJson(tokenInfoUrl);
+            const seconds = Math.ceil((Date.parse(expiresAt) - Date.now()) / COUNTDOWN_MILLIS);
+            remaining = Math.min(Math.max(seconds, 1), windowSeconds);
+            render();
+        } catch (error) {
+            stopAll();
+        }
+    };
+
+    const refreshQr = () => {
+        qr.src = `${qrUrl}?v=${Date.now()}`;
+        alignWithServer();
+    };
+
+    const tick = () => {
+        remaining -= 1;
+        if (remaining <= 0) {
+            remaining = windowSeconds;
+            refreshQr();
+        }
+        render();
+    };
+
+    // Un fallo del contador solo detiene el contador: el QR debe seguir rotando.
+    const refreshCount = async () => {
+        try {
+            const data = await fetchJson(countUrl);
+            count.textContent = String(data.count);
+        } catch (error) {
+            clearInterval(countTimer);
+        }
+    };
+
+    countdownTimer = setInterval(tick, COUNTDOWN_MILLIS);
+    countTimer = setInterval(refreshCount, COUNT_REFRESH_MILLIS);
+    alignWithServer();
+    refreshCount();
+});

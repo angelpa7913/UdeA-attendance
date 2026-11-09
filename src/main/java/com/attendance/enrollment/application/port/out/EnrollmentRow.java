@@ -26,5 +26,6 @@ package com.attendance.enrollment.application.port.out;
  * <h2>Notas</h2>
  * Archivo agregado respecto al CONTEXTO: es el tipo que devuelve {@code EnrollmentSource}.<br>
  */
-public record EnrollmentRow() {
+public record EnrollmentRow(String participantEmail, String participantName, String externalId,
+        String courseCode, String courseGroup, String courseName) {
 }

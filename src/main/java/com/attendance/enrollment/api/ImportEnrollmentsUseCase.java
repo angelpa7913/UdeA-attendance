@@ -1,5 +1,7 @@
 package com.attendance.enrollment.api;
 
+import java.io.InputStream;
+
 /**
  * <h2>Propósito</h2>
  * Puerto de entrada: carga masiva de inscritos desde una fuente (CSV hoy, API externa mañana).
@@ -26,4 +28,6 @@ package com.attendance.enrollment.api;
  * </ul>
  */
 public interface ImportEnrollmentsUseCase {
+
+    ImportSummary importEnrollments(String sourceType, InputStream data, String instructorEmail);
 }

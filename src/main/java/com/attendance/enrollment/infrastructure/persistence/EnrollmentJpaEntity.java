@@ -1,5 +1,14 @@
 package com.attendance.enrollment.infrastructure.persistence;
 
+import java.io.Serializable;
+import java.util.Objects;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
+import jakarta.persistence.Table;
+
 /**
  * <h2>Propósito</h2>
  * Entidad JPA de la tabla {@code enrollments}.
@@ -24,5 +33,61 @@ package com.attendance.enrollment.infrastructure.persistence;
  *   <li>Jakarta Persistence. Nada de otros módulos.</li>
  * </ul>
  */
+@Entity
+@Table(name = "enrollments")
+@IdClass(EnrollmentJpaEntity.Key.class)
 public class EnrollmentJpaEntity {
+
+    @Id
+    @Column(name = "participant_id")
+    private Long participantId;
+
+    @Id
+    @Column(name = "course_id")
+    private Long courseId;
+
+    protected EnrollmentJpaEntity() {
+    }
+
+    public EnrollmentJpaEntity(Long participantId, Long courseId) {
+        this.participantId = participantId;
+        this.courseId = courseId;
+    }
+
+    public Long getParticipantId() {
+        return participantId;
+    }
+
+    public Long getCourseId() {
+        return courseId;
+    }
+
+    /** Clave primaria compuesta de la inscripción. */
+    public static class Key implements Serializable {
+
+        private static final long serialVersionUID = 1L;
+
+        private Long participantId;
+        private Long courseId;
+
+        protected Key() {
+        }
+
+        public Key(Long participantId, Long courseId) {
+            this.participantId = participantId;
+            this.courseId = courseId;
+        }
+
+        @Override
+        public boolean equals(Object other) {
+            return other instanceof Key key
+                    && Objects.equals(participantId, key.participantId)
+                    && Objects.equals(courseId, key.courseId);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(participantId, courseId);
+        }
+    }
 }

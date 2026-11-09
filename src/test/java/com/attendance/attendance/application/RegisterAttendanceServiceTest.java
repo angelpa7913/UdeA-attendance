@@ -1,7 +1,26 @@
 package com.attendance.attendance.application;
 
-import org.junit.jupiter.api.Disabled;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.when;
+
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.util.Optional;
+
 import org.junit.jupiter.api.Test;
+
+import com.attendance.attendance.api.RegistrationResult;
+import com.attendance.attendance.application.port.out.AttendanceRepository;
+import com.attendance.attendance.domain.AttendanceRecord;
+import com.attendance.enrollment.api.CheckEnrollmentUseCase;
+import com.attendance.session.api.ValidateTokenUseCase;
+import com.attendance.session.api.ValidatedSession;
 
 /**
  * <h2>Propósito</h2>
@@ -33,39 +52,75 @@ import org.junit.jupiter.api.Test;
  */
 class RegisterAttendanceServiceTest {
 
+    private static final String TOKEN = "1.2.firma";
+    private static final String EMAIL = "ana@x.com";
+    private static final long SESSION_ID = 1L;
+    private static final long COURSE_ID = 9L;
+    private static final long PARTICIPANT_ID = 3L;
+    private static final Instant NOW = Instant.ofEpochSecond(1_000);
+
+    private final ValidateTokenUseCase validateToken = mock(ValidateTokenUseCase.class);
+    private final CheckEnrollmentUseCase checkEnrollment = mock(CheckEnrollmentUseCase.class);
+    private final AttendanceRepository repository = mock(AttendanceRepository.class);
+    private final RegisterAttendanceService service = new RegisterAttendanceService(validateToken, checkEnrollment,
+            repository, Clock.fixed(NOW, ZoneOffset.UTC));
+
     @Test
-    @Disabled("TODO")
     void returnsInvalidTokenWhenValidationFails() {
-        // ValidateTokenUseCase devuelve vacío → InvalidToken; no se consulta enrollment.
+        when(validateToken.validate(TOKEN)).thenReturn(Optional.empty());
+
+        assertThat(service.register(TOKEN, EMAIL)).isInstanceOf(RegistrationResult.InvalidToken.class);
+        verifyNoInteractions(checkEnrollment);
     }
 
     @Test
-    @Disabled("TODO")
     void returnsSessionClosedWhenSessionIsClosed() {
-        // ValidatedSession con open=false → SessionClosed.
+        session(false);
+
+        assertThat(service.register(TOKEN, EMAIL)).isInstanceOf(RegistrationResult.SessionClosed.class);
     }
 
     @Test
-    @Disabled("TODO")
     void returnsNotEnrolledWhenParticipantIsNotInCourse() {
-        // CheckEnrollmentUseCase vacío → NotEnrolled; no se guarda nada.
+        session(true);
+        when(checkEnrollment.findParticipantId(EMAIL, COURSE_ID)).thenReturn(Optional.empty());
+
+        assertThat(service.register(TOKEN, EMAIL)).isInstanceOf(RegistrationResult.NotEnrolled.class);
+        verify(repository, never()).save(any());
     }
 
     @Test
-    @Disabled("TODO")
     void returnsAlreadyRegisteredWhenRecordExists() {
-        // exists → true → AlreadyRegistered.
+        enrolled();
+        when(repository.exists(SESSION_ID, PARTICIPANT_ID)).thenReturn(true);
+
+        assertThat(service.register(TOKEN, EMAIL)).isInstanceOf(RegistrationResult.AlreadyRegistered.class);
+        verify(repository, never()).save(any());
     }
 
     @Test
-    @Disabled("TODO")
     void returnsAlreadyRegisteredOnConcurrentInsert() {
-        // exists → false pero save → false → AlreadyRegistered.
+        enrolled();
+        when(repository.save(any())).thenReturn(false);
+
+        assertThat(service.register(TOKEN, EMAIL)).isInstanceOf(RegistrationResult.AlreadyRegistered.class);
     }
 
     @Test
-    @Disabled("TODO")
     void returnsRegisteredAndUsesClockTime() {
-        // Todo válido → Registered con registeredAt == clock.instant().
+        enrolled();
+        when(repository.save(any())).thenReturn(true);
+
+        assertThat(service.register(TOKEN, EMAIL)).isEqualTo(new RegistrationResult.Registered(SESSION_ID, NOW));
+        verify(repository).save(new AttendanceRecord(SESSION_ID, PARTICIPANT_ID, NOW));
+    }
+
+    private void session(boolean open) {
+        when(validateToken.validate(TOKEN)).thenReturn(Optional.of(new ValidatedSession(SESSION_ID, COURSE_ID, open)));
+    }
+
+    private void enrolled() {
+        session(true);
+        when(checkEnrollment.findParticipantId(EMAIL, COURSE_ID)).thenReturn(Optional.of(PARTICIPANT_ID));
     }
 }

@@ -1,5 +1,12 @@
 package com.attendance.enrollment.infrastructure.persistence;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+
 /**
  * <h2>Propósito</h2>
  * Entidad JPA de la tabla {@code courses}.
@@ -24,5 +31,54 @@ package com.attendance.enrollment.infrastructure.persistence;
  *   <li>Jakarta Persistence. Nada de otros módulos.</li>
  * </ul>
  */
+@Entity
+@Table(name = "courses")
 public class CourseJpaEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "code", nullable = false, length = 50)
+    private String code;
+
+    @Column(name = "group_code", nullable = false, length = 50)
+    private String groupCode;
+
+    @Column(name = "name", nullable = false, length = 200)
+    private String name;
+
+    @Column(name = "instructor_email", nullable = false, length = 320)
+    private String instructorEmail;
+
+    protected CourseJpaEntity() {
+    }
+
+    public CourseJpaEntity(Long id, String code, String groupCode, String name, String instructorEmail) {
+        this.id = id;
+        this.code = code;
+        this.groupCode = groupCode;
+        this.name = name;
+        this.instructorEmail = instructorEmail;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public String getGroupCode() {
+        return groupCode;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getInstructorEmail() {
+        return instructorEmail;
+    }
 }

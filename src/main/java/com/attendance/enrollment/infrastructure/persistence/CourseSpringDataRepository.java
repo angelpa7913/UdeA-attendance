@@ -1,5 +1,10 @@
 package com.attendance.enrollment.infrastructure.persistence;
 
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
 /**
  * <h2>Propósito</h2>
  * Repositorio Spring Data de {@code CourseJpaEntity}.
@@ -23,5 +28,9 @@ package com.attendance.enrollment.infrastructure.persistence;
  *   <li>{@code CourseJpaEntity}</li>
  * </ul>
  */
-public interface CourseSpringDataRepository {
+public interface CourseSpringDataRepository extends JpaRepository<CourseJpaEntity, Long> {
+
+    List<CourseJpaEntity> findByInstructorEmail(String email);
+
+    Optional<CourseJpaEntity> findByCodeAndGroupCode(String code, String groupCode);
 }

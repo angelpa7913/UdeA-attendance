@@ -17,7 +17,14 @@ Propósito: resumen de la sesión cerrada y botón para descargar el reporte.
 <body>
     <main>
         <h1>Reporte de asistencia</h1>
-        <!-- TODO: enlaces de descarga por formato -->
+        <p>Sesión <strong th:text="${sessionId}">1</strong></p>
+        <ul>
+            <li th:each="reportFormat : ${formats}">
+                <a th:href="@{/instructor/sessions/{id}/report/download(id=${sessionId},format=${reportFormat})}"
+                   th:text="'Descargar ' + ${reportFormat}">Descargar</a>
+            </li>
+        </ul>
+        <p>Si nadie registró asistencia en esta sesión, no habrá archivo para descargar.</p>
     </main>
 </body>
 </html>

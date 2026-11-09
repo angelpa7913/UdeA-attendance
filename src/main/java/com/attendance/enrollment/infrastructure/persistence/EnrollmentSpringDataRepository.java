@@ -1,5 +1,11 @@
 package com.attendance.enrollment.infrastructure.persistence;
 
+import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+
 /**
  * <h2>Propósito</h2>
  * Repositorio Spring Data de {@code EnrollmentJpaEntity}.
@@ -23,5 +29,13 @@ package com.attendance.enrollment.infrastructure.persistence;
  *   <li>{@code EnrollmentJpaEntity}</li>
  * </ul>
  */
-public interface EnrollmentSpringDataRepository {
+public interface EnrollmentSpringDataRepository
+        extends JpaRepository<EnrollmentJpaEntity, EnrollmentJpaEntity.Key> {
+
+    @Query("""
+            select e.participantId
+            from EnrollmentJpaEntity e, ParticipantJpaEntity p
+            where p.id = e.participantId and p.email = :email and e.courseId = :courseId
+            """)
+    Optional<Long> findParticipantIdEnrolled(@Param("email") String email, @Param("courseId") long courseId);
 }

@@ -23,5 +23,11 @@ package com.attendance.enrollment.domain;
  *   <li>Nada.</li>
  * </ul>
  */
-public record Enrollment() {
+public record Enrollment(long participantId, long courseId) {
+
+    public Enrollment {
+        if (participantId <= 0 || courseId <= 0) {
+            throw new IllegalArgumentException("Los ids de la inscripción deben ser positivos");
+        }
+    }
 }

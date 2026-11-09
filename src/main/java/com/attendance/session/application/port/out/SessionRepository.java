@@ -1,5 +1,9 @@
 package com.attendance.session.application.port.out;
 
+import java.util.Optional;
+
+import com.attendance.session.domain.ClassSession;
+
 /**
  * <h2>Propósito</h2>
  * Puerto de salida: persistencia de sesiones.
@@ -25,4 +29,10 @@ package com.attendance.session.application.port.out;
  * </ul>
  */
 public interface SessionRepository {
+
+    ClassSession save(ClassSession session);
+
+    Optional<ClassSession> findById(long id);
+
+    Optional<ClassSession> findOpenByCourse(long courseId);
 }

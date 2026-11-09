@@ -16,10 +16,22 @@ Propósito: lo que ve el participante después de escanear.
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title th:text="${institutionName} + ' · Registro'">Registro</title>
+    <style>
+        body { font-family: sans-serif; margin: 0; padding: 2rem 1rem; text-align: center; font-size: 1.25rem; }
+    </style>
 </head>
 <body>
     <main>
-        <!-- TODO: mensaje según el resultado -->
+        <div th:switch="${status}">
+            <p th:case="'registered'">
+                Asistencia registrada a las
+                <strong th:text="${#temporals.format(registeredAt, 'HH:mm')}">00:00</strong>
+            </p>
+            <p th:case="'invalid'">QR inválido o vencido, escanea de nuevo</p>
+            <p th:case="'closed'">La sesión ya fue cerrada</p>
+            <p th:case="'not-enrolled'">No estás inscrito en este curso</p>
+            <p th:case="'already'">Ya habías registrado tu asistencia</p>
+        </div>
     </main>
 </body>
 </html>

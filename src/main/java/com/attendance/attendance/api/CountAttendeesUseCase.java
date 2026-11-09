@@ -25,4 +25,6 @@ package com.attendance.attendance.api;
  * </ul>
  */
 public interface CountAttendeesUseCase {
+
+    long countBySession(long sessionId);
 }

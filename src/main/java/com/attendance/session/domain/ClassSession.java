@@ -1,5 +1,9 @@
 package com.attendance.session.domain;
 
+import java.time.Instant;
+import java.util.Locale;
+import java.util.Optional;
+
 /**
  * <h2>Propósito</h2>
  * Entidad de dominio: una sesión de asistencia de un curso, con su ciclo de vida.
@@ -27,4 +31,67 @@ package com.attendance.session.domain;
  * </ul>
  */
 public final class ClassSession {
+
+    private final Long id;
+    private final long courseId;
+    private final String instructorEmail;
+    private final String secret;
+    private final Instant openedAt;
+    private final Instant closedAt;
+
+    private ClassSession(Long id, long courseId, String instructorEmail, String secret, Instant openedAt,
+            Instant closedAt) {
+        this.id = id;
+        this.courseId = courseId;
+        this.instructorEmail = instructorEmail.strip().toLowerCase(Locale.ROOT);
+        this.secret = secret;
+        this.openedAt = openedAt;
+        this.closedAt = closedAt;
+    }
+
+    public static ClassSession open(long courseId, String instructorEmail, String secret, Instant now) {
+        return new ClassSession(null, courseId, instructorEmail, secret, now, null);
+    }
+
+    public static ClassSession restore(long id, long courseId, String instructorEmail, String secret,
+            Instant openedAt, Optional<Instant> closedAt) {
+        return new ClassSession(id, courseId, instructorEmail, secret, openedAt, closedAt.orElse(null));
+    }
+
+    /** Cerrar una sesión ya cerrada la devuelve igual (idempotente). */
+    public ClassSession close(Instant now) {
+        return isOpen() ? new ClassSession(id, courseId, instructorEmail, secret, openedAt, now) : this;
+    }
+
+    public boolean isOpen() {
+        return closedAt == null;
+    }
+
+    public boolean isOwnedBy(String email) {
+        return instructorEmail.equalsIgnoreCase(email);
+    }
+
+    public Optional<Long> id() {
+        return Optional.ofNullable(id);
+    }
+
+    public long courseId() {
+        return courseId;
+    }
+
+    public String instructorEmail() {
+        return instructorEmail;
+    }
+
+    public String secret() {
+        return secret;
+    }
+
+    public Instant openedAt() {
+        return openedAt;
+    }
+
+    public Optional<Instant> closedAt() {
+        return Optional.ofNullable(closedAt);
+    }
 }

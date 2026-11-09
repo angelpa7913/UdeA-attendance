@@ -23,5 +23,5 @@ package com.attendance.session.api;
  *   <li>Nada.</li>
  * </ul>
  */
-public record ValidatedSession() {
+public record ValidatedSession(long sessionId, long courseId, boolean open) {
 }

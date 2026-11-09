@@ -1,5 +1,7 @@
 package com.attendance.attendance.infrastructure.persistence;
 
+import org.springframework.data.jpa.repository.JpaRepository;
+
 /**
  * <h2>Propósito</h2>
  * Repositorio Spring Data de {@code AttendanceRecordJpaEntity}.
@@ -23,5 +25,10 @@ package com.attendance.attendance.infrastructure.persistence;
  *   <li>{@code AttendanceRecordJpaEntity}</li>
  * </ul>
  */
-public interface AttendanceRecordSpringDataRepository {
+public interface AttendanceRecordSpringDataRepository
+        extends JpaRepository<AttendanceRecordJpaEntity, AttendanceRecordId> {
+
+    long countBySessionId(long sessionId);
+
+    boolean existsBySessionIdAndParticipantId(long sessionId, long participantId);
 }

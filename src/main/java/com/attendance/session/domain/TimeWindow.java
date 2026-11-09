@@ -1,5 +1,7 @@
 package com.attendance.session.domain;
 
+import java.time.Instant;
+
 /**
  * <h2>Propósito</h2>
  * Objeto de valor: número de ventana de tiempo a partir de un {@code Instant} y una duración.
@@ -27,5 +29,26 @@ package com.attendance.session.domain;
  *   <li>Nada (solo {@code java.time}).</li>
  * </ul>
  */
-public record TimeWindow() {
+public record TimeWindow(long number) {
+
+    public static TimeWindow of(Instant instant, long windowSeconds) {
+        requirePositive(windowSeconds);
+        return new TimeWindow(Math.floorDiv(instant.getEpochSecond(), windowSeconds));
+    }
+
+    /** Las ventanas futuras nunca son válidas. */
+    public boolean isWithinTolerance(TimeWindow current, int toleranceWindows) {
+        return number <= current.number && number >= current.number - toleranceWindows;
+    }
+
+    public Instant end(long windowSeconds) {
+        requirePositive(windowSeconds);
+        return Instant.ofEpochSecond((number + 1) * windowSeconds);
+    }
+
+    private static void requirePositive(long windowSeconds) {
+        if (windowSeconds <= 0) {
+            throw new IllegalArgumentException("La duración de la ventana debe ser positiva");
+        }
+    }
 }

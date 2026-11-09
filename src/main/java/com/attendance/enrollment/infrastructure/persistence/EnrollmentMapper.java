@@ -1,5 +1,8 @@
 package com.attendance.enrollment.infrastructure.persistence;
 
+import com.attendance.enrollment.domain.Course;
+import com.attendance.enrollment.domain.Participant;
+
 /**
  * <h2>Propósito</h2>
  * Convierte entre entidades de dominio y entidades JPA.
@@ -24,4 +27,26 @@ package com.attendance.enrollment.infrastructure.persistence;
  * </ul>
  */
 public final class EnrollmentMapper {
+
+    private EnrollmentMapper() {
+    }
+
+    static Participant toDomain(ParticipantJpaEntity entity) {
+        return Participant.restore(entity.getId(), entity.getEmail(), entity.getFullName(), entity.getExternalId());
+    }
+
+    static ParticipantJpaEntity toJpa(Participant participant) {
+        return new ParticipantJpaEntity(participant.id().orElse(null), participant.email(), participant.fullName(),
+                participant.externalId().orElse(null));
+    }
+
+    static Course toDomain(CourseJpaEntity entity) {
+        return Course.restore(entity.getId(), entity.getCode(), entity.getGroupCode(), entity.getName(),
+                entity.getInstructorEmail());
+    }
+
+    static CourseJpaEntity toJpa(Course course) {
+        return new CourseJpaEntity(course.id().orElse(null), course.code(), course.group(), course.name(),
+                course.instructorEmail());
+    }
 }

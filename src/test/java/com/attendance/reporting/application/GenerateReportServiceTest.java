@@ -1,7 +1,22 @@
 package com.attendance.reporting.application;
 
-import org.junit.jupiter.api.Disabled;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.nio.charset.StandardCharsets;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.util.List;
+import java.util.Optional;
+
 import org.junit.jupiter.api.Test;
+
+import com.attendance.reporting.api.GeneratedReport;
+import com.attendance.reporting.api.ReportFormat;
+import com.attendance.reporting.application.port.out.ReportDataSource;
+import com.attendance.reporting.application.port.out.ReportExporter;
+import com.attendance.reporting.application.port.out.ReportRow;
+import com.attendance.shared.config.AttendanceProperties;
 
 /**
  * <h2>Propósito</h2>
@@ -32,27 +47,56 @@ import org.junit.jupiter.api.Test;
  */
 class GenerateReportServiceTest {
 
+    private static final Instant NOW = Instant.parse("2026-03-04T12:00:00Z");
+    private static final String OWNER = "instructor@x.com";
+    private static final ReportRow ROW = new ReportRow("C1", "01", "Curso", 1L, NOW, "ana@x.com", "Ana", null, NOW);
+    private static final ReportDataSource DATA_SOURCE =
+            (sessionId, email) -> OWNER.equals(email) ? List.of(ROW) : List.of();
+
     @Test
-    @Disabled("TODO")
     void usesExporterThatSupportsFormat() {
-        // Con dos exportadores, solo se llama al que soporta el formato.
+        final GenerateReportService service = service(List.of(exporter(false, "otro"), exporter(true, "correcto")));
+
+        assertThat(service.generate(1L, ReportFormat.CSV, OWNER))
+                .map(report -> new String(report.content(), StandardCharsets.UTF_8))
+                .contains("correcto");
     }
 
     @Test
-    @Disabled("TODO")
     void returnsEmptyWhenNoExporterSupportsFormat() {
-        // Ningún exportador soporta el formato → vacío.
+        assertThat(service(List.of(exporter(false, "otro"))).generate(1L, ReportFormat.CSV, OWNER)).isEmpty();
     }
 
     @Test
-    @Disabled("TODO")
     void returnsEmptyWhenSessionNotOwned() {
-        // ReportDataSource sin filas para ese instructor → vacío.
+        assertThat(service(List.of(exporter(true, "x"))).generate(1L, ReportFormat.CSV, "otro@x.com")).isEmpty();
     }
 
     @Test
-    @Disabled("TODO")
     void buildsFileNameWithDateFromClock() {
-        // El nombre del archivo usa la fecha de Clock.fixed.
+        final Optional<GeneratedReport> report =
+                service(List.of(exporter(true, "x"))).generate(1L, ReportFormat.CSV, OWNER);
+
+        assertThat(report).map(GeneratedReport::fileName).contains("Institucion-de-prueba-1-2026-03-04.csv");
+    }
+
+    private static GenerateReportService service(List<ReportExporter> exporters) {
+        final AttendanceProperties properties = new AttendanceProperties("Institución de prueba", List.of("x.com"),
+                new AttendanceProperties.Qr(20, 1));
+        return new GenerateReportService(exporters, DATA_SOURCE, properties, Clock.fixed(NOW, ZoneOffset.UTC));
+    }
+
+    private static ReportExporter exporter(boolean supported, String content) {
+        return new ReportExporter() {
+            @Override
+            public boolean supports(ReportFormat format) {
+                return supported;
+            }
+
+            @Override
+            public byte[] export(List<ReportRow> rows) {
+                return content.getBytes(StandardCharsets.UTF_8);
+            }
+        };
     }
 }

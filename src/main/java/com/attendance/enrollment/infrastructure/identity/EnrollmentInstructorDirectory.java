@@ -2,6 +2,7 @@ package com.attendance.enrollment.infrastructure.identity;
 
 import org.springframework.stereotype.Component;
 
+import com.attendance.enrollment.api.ListInstructorCoursesUseCase;
 import com.attendance.identity.api.InstructorDirectory;
 
 /**
@@ -36,9 +37,14 @@ import com.attendance.identity.api.InstructorDirectory;
 @Component
 public class EnrollmentInstructorDirectory implements InstructorDirectory {
 
-    // TODO etapa 4d: temporal para que la app arranque; usar ListInstructorCoursesUseCase.
+    private final ListInstructorCoursesUseCase listInstructorCourses;
+
+    public EnrollmentInstructorDirectory(ListInstructorCoursesUseCase listInstructorCourses) {
+        this.listInstructorCourses = listInstructorCourses;
+    }
+
     @Override
     public boolean isInstructor(String email) {
-        return false;
+        return !listInstructorCourses.coursesOf(email).isEmpty();
     }
 }

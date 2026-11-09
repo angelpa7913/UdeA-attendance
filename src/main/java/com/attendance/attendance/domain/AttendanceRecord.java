@@ -1,5 +1,7 @@
 package com.attendance.attendance.domain;
 
+import java.time.Instant;
+
 /**
  * <h2>Propósito</h2>
  * Objeto de dominio: el participante X asistió a la sesión Y en el instante Z.
@@ -23,5 +25,14 @@ package com.attendance.attendance.domain;
  *   <li>Nada (solo {@code java.time}).</li>
  * </ul>
  */
-public record AttendanceRecord() {
+public record AttendanceRecord(long sessionId, long participantId, Instant registeredAt) {
+
+    public AttendanceRecord {
+        if (sessionId <= 0 || participantId <= 0) {
+            throw new IllegalArgumentException("Los ids del registro deben ser positivos");
+        }
+        if (registeredAt == null) {
+            throw new IllegalArgumentException("La hora del registro es obligatoria");
+        }
+    }
 }

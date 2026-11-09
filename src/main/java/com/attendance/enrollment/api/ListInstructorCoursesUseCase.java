@@ -1,5 +1,7 @@
 package com.attendance.enrollment.api;
 
+import java.util.List;
+
 /**
  * <h2>Propósito</h2>
  * Puerto de entrada: cursos de los que un correo es instructor.
@@ -27,4 +29,6 @@ package com.attendance.enrollment.api;
  * Archivo agregado respecto al CONTEXTO: sin él, el controlador tendría que tocar el repositorio.<br>
  */
 public interface ListInstructorCoursesUseCase {
+
+    List<CourseSummary> coursesOf(String instructorEmail);
 }

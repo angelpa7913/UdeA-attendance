@@ -1,5 +1,18 @@
 package com.attendance.session.infrastructure.crypto;
 
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Base64;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+
+import org.springframework.stereotype.Component;
+
+import com.attendance.session.application.port.out.TokenSigner;
+
 /**
  * <h2>Propósito</h2>
  * Implementa {@code TokenSigner} con HMAC-SHA256 y Base64 URL-safe.
@@ -27,5 +40,26 @@ package com.attendance.session.infrastructure.crypto;
  *   <li>{@code javax.crypto}, {@code java.security}</li>
  * </ul>
  */
-public class HmacTokenSigner {
+@Component
+public class HmacTokenSigner implements TokenSigner {
+
+    private static final String ALGORITHM = "HmacSHA256";
+
+    @Override
+    public String sign(String data, String secret) {
+        try {
+            final Mac mac = Mac.getInstance(ALGORITHM);
+            mac.init(new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), ALGORITHM));
+            return Base64.getUrlEncoder().withoutPadding().encodeToString(mac.doFinal(data.getBytes(StandardCharsets.UTF_8)));
+        } catch (NoSuchAlgorithmException | InvalidKeyException e) {
+            throw new IllegalStateException("No se pudo firmar el token", e);
+        }
+    }
+
+    @Override
+    public boolean verify(String data, String signature, String secret) {
+        // SECURITY: comparación en tiempo constante, nunca equals.
+        return MessageDigest.isEqual(sign(data, secret).getBytes(StandardCharsets.UTF_8),
+                signature.getBytes(StandardCharsets.UTF_8));
+    }
 }

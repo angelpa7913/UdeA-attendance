@@ -1,5 +1,8 @@
 package com.attendance.enrollment.domain;
 
+import java.util.Locale;
+import java.util.Optional;
+
 /**
  * <h2>Propósito</h2>
  * Entidad de dominio: una persona que puede inscribirse (estudiante, asistente, empleado...).
@@ -25,4 +28,46 @@ package com.attendance.enrollment.domain;
  * </ul>
  */
 public final class Participant {
+
+    private final Long id;
+    private final String email;
+    private final String fullName;
+    private final String externalId;
+
+    private Participant(Long id, String email, String fullName, String externalId) {
+        if (email == null || email.isBlank()) {
+            throw new IllegalArgumentException("El correo del participante no puede estar en blanco");
+        }
+        if (fullName == null || fullName.isBlank()) {
+            throw new IllegalArgumentException("El nombre del participante no puede estar en blanco");
+        }
+        this.id = id;
+        this.email = email.strip().toLowerCase(Locale.ROOT);
+        this.fullName = fullName.strip();
+        this.externalId = externalId == null || externalId.isBlank() ? null : externalId.strip();
+    }
+
+    public static Participant create(String email, String fullName, String externalId) {
+        return new Participant(null, email, fullName, externalId);
+    }
+
+    public static Participant restore(long id, String email, String fullName, String externalId) {
+        return new Participant(id, email, fullName, externalId);
+    }
+
+    public Optional<Long> id() {
+        return Optional.ofNullable(id);
+    }
+
+    public String email() {
+        return email;
+    }
+
+    public String fullName() {
+        return fullName;
+    }
+
+    public Optional<String> externalId() {
+        return Optional.ofNullable(externalId);
+    }
 }

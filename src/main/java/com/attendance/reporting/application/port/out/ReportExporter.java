@@ -1,5 +1,9 @@
 package com.attendance.reporting.application.port.out;
 
+import java.util.List;
+
+import com.attendance.reporting.api.ReportFormat;
+
 /**
  * <h2>Propósito</h2>
  * Puerto de salida: convierte filas a bytes en un formato.
@@ -24,4 +28,8 @@ package com.attendance.reporting.application.port.out;
  * </ul>
  */
 public interface ReportExporter {
+
+    boolean supports(ReportFormat format);
+
+    byte[] export(List<ReportRow> rows);
 }

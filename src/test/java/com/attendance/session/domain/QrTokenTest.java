@@ -1,6 +1,9 @@
 package com.attendance.session.domain;
 
-import org.junit.jupiter.api.Disabled;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.time.Instant;
+
 import org.junit.jupiter.api.Test;
 
 /**
@@ -31,32 +34,37 @@ import org.junit.jupiter.api.Test;
 class QrTokenTest {
 
     @Test
-    @Disabled("TODO")
     void serializeAndParseRoundTrip() {
-        // parse(serialize(t)) devuelve un token igual a t.
+        final QrToken token = new QrToken(12L, 345L, "firma_-1");
+
+        assertThat(QrToken.parse(token.serialize())).contains(token);
     }
 
     @Test
-    @Disabled("TODO")
     void rejectsWrongNumberOfParts() {
-        // `1.2` o `1.2.3.4` → Optional.empty().
+        assertThat(QrToken.parse("1.2")).isEmpty();
+        assertThat(QrToken.parse("1.2.3.4")).isEmpty();
     }
 
     @Test
-    @Disabled("TODO")
     void rejectsNonNumericParts() {
-        // `abc.2.sig` → Optional.empty().
+        assertThat(QrToken.parse("abc.2.sig")).isEmpty();
     }
 
     @Test
-    @Disabled("TODO")
     void rejectsEmptySignature() {
-        // `1.2.` → Optional.empty().
+        assertThat(QrToken.parse("1.2.")).isEmpty();
     }
 
     @Test
-    @Disabled("TODO")
+    void rejectsOversizedToken() {
+        assertThat(QrToken.parse("1.2." + "a".repeat(500))).isEmpty();
+    }
+
+    @Test
     void timeWindowIsEpochSecondsDividedByDuration() {
-        // Instant 100 s con ventana 20 s → ventana 5; 119 s → 5; 120 s → 6.
+        assertThat(TimeWindow.of(Instant.ofEpochSecond(100), 20).number()).isEqualTo(5);
+        assertThat(TimeWindow.of(Instant.ofEpochSecond(119), 20).number()).isEqualTo(5);
+        assertThat(TimeWindow.of(Instant.ofEpochSecond(120), 20).number()).isEqualTo(6);
     }
 }

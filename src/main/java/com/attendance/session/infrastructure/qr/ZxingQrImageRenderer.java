@@ -1,5 +1,16 @@
 package com.attendance.session.infrastructure.qr;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+
+import org.springframework.stereotype.Component;
+
+import com.google.zxing.BarcodeFormat;
+import com.google.zxing.WriterException;
+import com.google.zxing.client.j2se.MatrixToImageWriter;
+import com.google.zxing.common.BitMatrix;
+import com.google.zxing.qrcode.QRCodeWriter;
+
 /**
  * <h2>Propósito</h2>
  * Convierte la URL con el token (ej. {@code https://host/attend?t=...}) en una imagen PNG.
@@ -26,5 +37,21 @@ package com.attendance.session.infrastructure.qr;
  *   <li>ZXing ({@code com.google.zxing})</li>
  * </ul>
  */
+@Component
 public class ZxingQrImageRenderer {
+
+    public static final int DEFAULT_SIZE = 480;
+
+    private static final String IMAGE_FORMAT = "PNG";
+
+    public byte[] render(String content, int size) {
+        try {
+            final BitMatrix matrix = new QRCodeWriter().encode(content, BarcodeFormat.QR_CODE, size, size);
+            final ByteArrayOutputStream output = new ByteArrayOutputStream();
+            MatrixToImageWriter.writeToStream(matrix, IMAGE_FORMAT, output);
+            return output.toByteArray();
+        } catch (WriterException | IOException e) {
+            throw new IllegalStateException("No se pudo generar la imagen del QR", e);
+        }
+    }
 }

@@ -1,5 +1,9 @@
 package com.attendance.enrollment.infrastructure.persistence;
 
+import java.util.Optional;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+
 /**
  * <h2>Propósito</h2>
  * Repositorio Spring Data de {@code ParticipantJpaEntity}.
@@ -23,5 +27,7 @@ package com.attendance.enrollment.infrastructure.persistence;
  *   <li>{@code ParticipantJpaEntity}</li>
  * </ul>
  */
-public interface ParticipantSpringDataRepository {
+public interface ParticipantSpringDataRepository extends JpaRepository<ParticipantJpaEntity, Long> {
+
+    Optional<ParticipantJpaEntity> findByEmail(String email);
 }

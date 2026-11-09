@@ -25,4 +25,9 @@ package com.attendance.session.application.port.out;
  * </ul>
  */
 public interface TokenSigner {
+
+    String sign(String data, String secret);
+
+    /** SECURITY: la implementación debe comparar en tiempo constante. */
+    boolean verify(String data, String signature, String secret);
 }
